@@ -1,22 +1,22 @@
 Head = Object:extend()
 require "util"
 
-function Head:new(parent)
-	self.id = NewGuid()
+function Head:new(base)
+	self.id = base.id
 
-	self.parent = parent
+	self.base = base
 
-	self.x = parent.x
-	self.y = parent.y
-	self.z = parent.z
+	self.x = base.x
+	self.y = base.y
+	self.z = base.z
 
 	self.health = 100.0
 end
 
 function Head:update(dt)
-	self.x = self.parent.x
-	self.y = self.parent.y
-	self.z = self.parent.z
+	self.x = self.base.x
+	self.y = self.base.y
+	self.z = self.base.z
 end
 
 function Head:draw()

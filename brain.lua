@@ -2,16 +2,17 @@ Brain = Object:extend()
 require "util"
 
 function Brain:new(parent)
-	self.id = NewGuid()
+	self.id = parent.id
 
 	self.x = parent.x
 	self.y = parent.y
 	self.z = parent.z
 
 	self.parent = parent
+	self.task = nil
 
 	self.fatigue = 0.0
-	self.hunger = 9.5
+	self.hunger = 9.0
 
 	self.memory = {}
 end
@@ -21,35 +22,41 @@ function Brain:update(dt)
 	self.y = self.parent.y
 	self.z = self.parent.z
 
-	self.hunger = self.hunger + 0.01
+	self.hunger = self.hunger + 0.02
 
 	if self.hunger > 10 then
-		table.insert(Queue, Task(self.id, "EAT"))
-		for i,v in ipairs(Seeds) do
-			local h_distance = v.x - self.x
-			local v_distance = v.y - self.y
-			local distance = math.sqrt(h_distance^2 + v_distance^2)
-			if v.z == self.z and distance < 3 then
+		local task = Task(self.id, "EAT")
+		if Contains(Queue, task) == false then
+			table.insert(Queue, task)
+		end
+	end
+
+	self:manage()
+
+	for _,v in ipairs(Seeds) do
+		local h_distance = v.x - self.x
+		local v_distance = v.y - self.y
+		local distance = math.sqrt(h_distance^2 + v_distance^2)
+		if v.z == self.z and distance < 5 then
+			if Contains(self.memory, v) == false then
 				table.insert(self.memory, v)
 			end
 		end
 	end
 
-	food = self.memory[0]
-	if food == nil then
-		return
+	food = self.memory[1]
+	if food ~= nil then
+		table.insert(Queue, Task(self.id, "MOVE", food))
 	end
-
-	local angle = math.atan2(food.x - self.x, food.y - self.y)
-	local cos = math.cos(angle)
-	local sin = math.sin(angle)
-
-	self.x = self.x + self.speed * cos * dt
-	self.y = self.y + self.speed * sin * dt
 end
 
 function Brain:draw()
-	love.graphics.setColor(0.8, 0.5, 0.7, 1)
+	local color = { 0.8, 0.5, 0.7, 0.5 }
+	if self.task ~= nil then
+		color = { 0.8, 0.5, 0.7, 1 }
+	end
+
+	love.graphics.setColor(color)
 	love.graphics.ellipse("fill", self.x*Scale + Scale/2, self.y*Scale + 0.25*Scale, 0.14*Scale, 0.18*Scale)
 	love.graphics.print("ID: " .. self.id, self.x*Scale + Scale, self.y*Scale + 12*-1)
 	love.graphics.print("Hunger: " .. self.hunger, self.x*Scale + Scale, self.y*Scale + 12*2)
@@ -61,7 +68,16 @@ function Brain:draw()
 
 	local memory = ""
 	for i,v in ipairs(self.memory) do
-		memory = memory .. "; " .. i .. ":" .. v.x .. "/" .. v.y .. "/" .. v.z
+		memory = memory .. "\n" .. i .. ":" .. v.x .. "/" .. v.y .. "/" .. v.z
 	end
 	love.graphics.print("Memory: " .. memory, self.x*Scale + Scale, self.y*Scale + 12*5)
+end
+
+function Brain.manage(self)
+	for i,v in ipairs(Queue) do
+		if v.contractor == self.id then
+			self.task = v
+			table.remove(Queue, i)
+		end
+	end
 end

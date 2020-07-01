@@ -4,9 +4,9 @@ function love.load()
 	require "cursor"
 	require "cell"
 	require "seed"
+	require "base"
 
 	-- Body parts
-	require "body"
 	require "head"
 
 	-- Modules
@@ -47,19 +47,19 @@ function love.load()
 		end
 	end
 
-	BodyParts = {}
+	Entities = {}
 
-	local body = Body(4, 4, 4)
-	table.insert(BodyParts, body)
+	local base = Base(4, 4, 4)
+	table.insert(Entities, base)
 
-	local motor = Motor(body)
-	table.insert(BodyParts, motor)
+	local motor = Motor(base)
+	table.insert(Entities, motor)
 
-	local head = Head(body)
-	table.insert(BodyParts, head)
+	local head = Head(base)
+	table.insert(Entities, head)
 
 	local brain = Brain(head)
-	table.insert(BodyParts, brain)
+	table.insert(Entities, brain)
 end
 
 function love.update(dt)
@@ -71,7 +71,7 @@ function love.update(dt)
 		v:update()
 	end
 
-	for i,v in ipairs(BodyParts) do
+	for i,v in ipairs(Entities) do
 		v:update()
 	end
 
@@ -119,7 +119,7 @@ function love.draw()
 		end
 	end
 
-	for i,v in ipairs(BodyParts) do
+	for i,v in ipairs(Entities) do
 		if v.z == Level then
 			v:draw()
 		end
