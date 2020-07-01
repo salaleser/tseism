@@ -17,10 +17,10 @@ function love.load()
 
 	Queue = {}
 
-	Scale = 64
+	Scale = 32
 	WorldSize = {
-		width = 16,
-		height = 16,
+		width = 32,
+		height = 32,
 		depth = 8
 	}
 
@@ -58,7 +58,7 @@ function love.load()
 	local head = Head(base)
 	table.insert(Entities, head)
 
-	local brain = Brain(head)
+	local brain = Brain(base, head)
 	table.insert(Entities, brain)
 end
 

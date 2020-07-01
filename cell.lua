@@ -14,6 +14,10 @@ function Cell:draw()
 	love.graphics.setColor(1, 1, 1, 0.4)
 	love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
 
-	love.graphics.setColor(1, 1, 1, 0.2)
-	love.graphics.print(self.z, self.x*Scale, self.y*Scale)
+	if self.x == Cursor.x
+		and self.y == Cursor.y
+		and Scale > 16 then
+		love.graphics.setColor(1, 1, 1, 0.2)
+		love.graphics.print(self.z, self.x*Scale, self.y*Scale)
+	end
 end

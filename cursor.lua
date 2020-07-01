@@ -42,5 +42,4 @@ end
 function Cursor:draw()
 	love.graphics.setColor(1, 0, 0, 0.8)
 	love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
-	love.graphics.print(self.x .. "•" .. self.y, self.x*Scale, self.y*Scale)
 end

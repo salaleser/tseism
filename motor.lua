@@ -11,6 +11,7 @@ function Motor:new(base)
 	self.base = base
 	self.task = nil
 
+	Debug = 0
 	self.health = 100.0
 	self.speed = 100.0
 end
@@ -22,16 +23,8 @@ function Motor:update(dt)
 
 	Motor:manage()
 
-	Debug = 0
-
 	if self.task ~= nil then
-		local angle = math.atan2(self.task.entity.x - self.x, self.task.entity.y - self.y)
-		local cos = math.cos(angle)
-		local sin = math.sin(angle)
-		Debug = cos
-
-		self.base.x = self.base.x + self.speed * cos * dt
-		self.base.y = self.base.y + self.speed * sin * dt
+		self:act()
 	end
 end
 
@@ -55,14 +48,28 @@ function Motor:draw()
 		self.x*Scale + Scale,
 		self.y*Scale + Scale/2
 	)
-	love.graphics.print("Cos: " .. Debug, self.x*Scale + Scale, self.y*Scale + 12*1)
+	if self.x == Cursor.x
+		and self.y == Cursor.y
+		and Scale > 16 then
+		love.graphics.print("Cos: " .. Debug, self.x*Scale + Scale, self.y*Scale + 12*1)
+	end
 end
 
-function Motor.manage(self)
+function Motor:manage()
 	for i,v in ipairs(Queue) do
 		if v.contractor == self.id then
 			self.task = v
 			table.remove(Queue, i)
 		end
 	end
+end
+
+function Motor:act()
+	local angle = math.atan2(self.task.entity.x - self.x, self.task.entity.y - self.y)
+	local cos = math.cos(angle)
+	local sin = math.sin(angle)
+	Debug = Debug + 1
+
+	self.base.x = self.base.x + self.speed * cos-- * dt
+	self.base.y = self.base.y + self.speed * sin-- * dt
 end
