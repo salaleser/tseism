@@ -11,12 +11,14 @@ function Cell:update(dt)
 end
 
 function Cell:draw()
-	love.graphics.setColor(1, 1, 1, 0.4)
-	love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
+	if Scale > 12 then
+		love.graphics.setColor(1, 1, 1, 0.4)
+		love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
+	end
 
 	if self.x == Cursor.x
-		and self.y == Cursor.y
-		and Scale > 16 then
+	and self.y == Cursor.y
+	and Scale > 16 then
 		love.graphics.setColor(1, 1, 1, 0.2)
 		love.graphics.print(self.z, self.x*Scale, self.y*Scale)
 	end

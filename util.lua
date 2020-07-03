@@ -3,9 +3,10 @@ function NewGuid()
 end
 
 function Contains(list, value)
-	for i,v in ipairs(list) do
+	for _,v in ipairs(list) do
 		if v.code == value.code
-			and v.contractor == value.contractor then
+		and v.category == value.category
+		and v.contractor == value.contractor then
 			return true
 		end
 	end

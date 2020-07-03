@@ -1,23 +1,33 @@
 function love.load()
 	Object = require "classic"
 	require "task"
+
+	-- GUI
 	require "cursor"
+
+	-- World
 	require "cell"
+
+	-- Items
 	require "seed"
+
+	-- Ships
+	require "block"
+	require "ships"
+
+	-- Creatures
 	require "base"
-
-	-- Body parts
 	require "head"
-
-	-- Modules
 	require "brain"
 	require "motor"
 
 	StartTime = love.timer.getTime()
 
+	Menu = true
 	Queue = {}
 
 	Scale = 32
+	ScaleLimit = 4096
 	WorldSize = {
 		width = 32,
 		height = 32,
@@ -28,20 +38,31 @@ function love.load()
 	Level = WorldSize.depth/2
 
 	Cells = {}
-	for i = 0,WorldSize.width do
-		for j = 0,WorldSize.height do
-			for k = 0,WorldSize.depth do
-				table.insert(Cells, Cell(i, j, k))
+	for i=0,WorldSize.width do
+		for j=0,WorldSize.height do
+			for k=0,WorldSize.depth do
+				table.insert(Cells, Cell(j, i, k))
+			end
+		end
+	end
+
+	Block:init()
+
+	Blocks = {}
+	for i,row in ipairs(Ship1) do
+		for j,type in ipairs(row) do
+			if type ~= 0 then
+				table.insert(Blocks, Block(j, i, 4, type))
 			end
 		end
 	end
 
 	Seeds = {}
-	for i = 0,WorldSize.width do
-		for j = 0,WorldSize.height do
-			for k = 0,WorldSize.depth do
+	for i=0,WorldSize.width do
+		for j=0,WorldSize.height do
+			for k=0,WorldSize.depth do
 				if love.math.random() > 0.95 then
-					table.insert(Seeds, Seed(i, j, k))
+					table.insert(Seeds, Seed(j, i, k))
 				end
 			end
 		end
@@ -49,7 +70,7 @@ function love.load()
 
 	Entities = {}
 
-	local base = Base(4, 4, 4)
+	local base = Base(12, 12, 4)
 	table.insert(Entities, base)
 
 	local motor = Motor(base)
@@ -63,25 +84,23 @@ function love.load()
 end
 
 function love.update(dt)
-	for i,v in ipairs(Cells) do
+	for _,v in ipairs(Cells) do
 		v:update()
 	end
 
-	for i,v in ipairs(Seeds) do
+	for _,v in ipairs(Blocks) do
 		v:update()
 	end
 
-	for i,v in ipairs(Entities) do
+	for _,v in ipairs(Seeds) do
 		v:update()
 	end
 
-	for i,v in ipairs(Queue) do
+	for _,v in ipairs(Entities) do
 		v:update()
 	end
 
 	Cursor:update()
-
-	Console = love.timer.getFPS()
 end
 
 function love.keypressed(key, scancode, isrepeat)
@@ -96,43 +115,101 @@ function love.keypressed(key, scancode, isrepeat)
 	end
 
 	if key == "-" then
-		if Scale > 2 then
+		if Scale > 1 then
 			Scale = Scale / 2
 		end
 	elseif key == "=" then
-		if Scale < 512 then
+		if Scale <= ScaleLimit then
 			Scale = Scale * 2
 		end
+	elseif key == "0" then
+		Scale = 32
 	end
+
+	if key == "[" then
+		if Scale > 2 then
+			Scale = Scale - 1
+		end
+	elseif key == "]" then
+		if Scale < ScaleLimit then
+			Scale = Scale + 1
+		end
+	end
+
+	if key == "i" then
+		if Menu then
+			Menu = false
+		else
+			Menu = true
+		end
+	end
+
+	love.window.setTitle(Scale.." | "..Level.." | "..love.timer.getFPS())
 end
 
 function love.draw()
-	for i,v in ipairs(Cells) do
+	for _,v in ipairs(Cells) do
 		if v.z == Level then
 			v:draw()
 		end
 	end
 
-	for i,v in ipairs(Seeds) do
+	for _,v in ipairs(Blocks) do
 		if v.z == Level then
 			v:draw()
 		end
 	end
 
-	for i,v in ipairs(Entities) do
+	for _,v in ipairs(Seeds) do
 		if v.z == Level then
 			v:draw()
 		end
 	end
 
-	for i,v in ipairs(Queue) do
-		v:draw()
+	for _,v in ipairs(Entities) do
+		if v.z == Level then
+			v:draw()
+		end
 	end
 
 	Cursor:draw()
 
-	local lineSize = 12
-	love.graphics.setColor(1, 1, 1, 0.9)
-	love.graphics.print("Level: " .. Level, 0, (WorldSize.height + 1)*Scale + lineSize*0)
-	love.graphics.print(Console, 0, (WorldSize.height + 1)*Scale + lineSize*1)
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.rectangle("line", 0, 0, (WorldSize.width + 1)*Scale, (WorldSize.height + 1)*Scale)
+
+	-- MENU --
+	if Menu then
+		local info = {}
+		table.insert(info, "Level: "..Level)
+		table.insert(info, "Scale: "..Scale)
+		table.insert(info, "Keys: a z — level, 0 - = — scale, [ ] — scale")
+		local queue = "Queue: "
+		for i,v in ipairs(Queue) do
+			queue = queue..i.."."..v.category..":"..v.code.." | "
+		end
+		table.insert(info, queue)
+		DrawMenu(info)
+	end
+end
+
+function DrawMenu(list)
+	local lineHeight = 12
+	local x, y, w, h = love.window.getSafeArea()
+	local menu = {
+		x = 4,
+		y = h - lineHeight*#list,
+		w = w - 8,
+		h = h - 4
+	}
+
+	love.graphics.setColor(0, 0, 0, 0.7)
+	love.graphics.rectangle("fill", menu.x, menu.y, menu.w, menu.h)
+
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.rectangle("line", menu.x, menu.y, menu.w, menu.h)
+
+	love.graphics.setColor(1, 1, 1, 1)
+	for i,v in ipairs(list) do
+		love.graphics.print(v, menu.x + 2, menu.y + lineHeight*(#list - i))
+	end
 end

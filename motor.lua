@@ -11,9 +11,8 @@ function Motor:new(base)
 	self.base = base
 	self.task = nil
 
-	Debug = 0
 	self.health = 100.0
-	self.speed = 100.0
+	self.speed = 0.02
 end
 
 function Motor:update(dt)
@@ -21,10 +20,17 @@ function Motor:update(dt)
 	self.y = self.base.y
 	self.z = self.base.z
 
-	Motor:manage()
+	self:manage()
 
 	if self.task ~= nil then
-		self:act()
+		love.window.setTitle(self.task.code)
+	end
+
+	if self.task ~= nil then
+		local err = self:act()
+		if err == -1 then
+			love.window.showMessageBox("ERROR", "local err = self:act()", {"OK"})
+		end
 	end
 end
 
@@ -48,16 +54,21 @@ function Motor:draw()
 		self.x*Scale + Scale,
 		self.y*Scale + Scale/2
 	)
-	if self.x == Cursor.x
-		and self.y == Cursor.y
-		and Scale > 16 then
-		love.graphics.print("Cos: " .. Debug, self.x*Scale + Scale, self.y*Scale + 12*1)
+
+	local task = "Task: "
+	if self.task ~= nil then
+		task = task..self.task.category..":"..self.task.code
+		if self.task.entity ~= nil then
+			task = task.." ("..self.task.entity.x.."/"..self.task.entity.y..")"
+		end
+		love.graphics.print(task, self.x*Scale + Scale, self.y*Scale)
 	end
 end
 
 function Motor:manage()
 	for i,v in ipairs(Queue) do
-		if v.contractor == self.id then
+		if v.contractor == self.id
+		and v.category == "MOTOR" then
 			self.task = v
 			table.remove(Queue, i)
 		end
@@ -65,11 +76,20 @@ function Motor:manage()
 end
 
 function Motor:act()
-	local angle = math.atan2(self.task.entity.x - self.x, self.task.entity.y - self.y)
-	local cos = math.cos(angle)
-	local sin = math.sin(angle)
-	Debug = Debug + 1
+	if self.task.code == "MOVE" then
+		if self.task.x == nil or self.task.y == nil then
+			love.window.showMessageBox("ERROR", "self.task.x == nil or self.task.y == nil", {"OK"})
+			return -1
+		end
+		self:move(self.task.x, self.task.y)
+		self.task = nil
+	end
+end
 
-	self.base.x = self.base.x + self.speed * cos-- * dt
-	self.base.y = self.base.y + self.speed * sin-- * dt
+function Motor:move(x, y)
+	self.base.x = x
+	self.base.y = y
+	-- local angle = math.atan2(food.y - self.y, food.x - self.x)
+	-- self.base.x = self.base.x + self.speed * math.cos(angle)
+	-- self.base.y = self.base.y + self.speed * math.sin(angle)
 end

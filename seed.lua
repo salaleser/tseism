@@ -18,8 +18,8 @@ function Seed:draw()
 	love.graphics.circle("fill", self.x*Scale + Scale/4, self.y*Scale + Scale/4, Scale/8)
 
 	if self.x == Cursor.x
-		and self.y == Cursor.y
-		and Scale > 16 then
-		love.graphics.print("ID: " .. self.id, self.x*Scale + Scale, self.y*Scale + 12*-1)
+	and self.y == Cursor.y
+	and Scale > 16 then
+		love.graphics.print("ID: "..self.id, self.x*Scale + Scale, self.y*Scale)
 	end
 end
