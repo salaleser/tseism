@@ -39,7 +39,8 @@ function Motor:update(dt)
 end
 
 function Motor:draw()
-	love.graphics.setColor(0, 0, 1, 1)
+	love.graphics.setLineWidth(3)
+	love.graphics.setColor(0, 0, 0.8, 1)
 	love.graphics.line(
 		self.x*Scale,
 		self.y*Scale,
@@ -52,12 +53,17 @@ function Motor:draw()
 		self.x*Scale,
 		self.y*Scale + Scale
 	)
-	love.graphics.line(
-		self.x*Scale,
-		self.y*Scale + Scale/2,
-		self.x*Scale + Scale,
-		self.y*Scale + Scale/2
-	)
+	love.graphics.setLineWidth(1)
+
+	self:drawStats()
+end
+
+function Motor:drawStats()
+	if self.x ~= Cursor.x
+	or self.y ~= Cursor.y
+	or Scale < 16 then
+		-- return -1
+	end
 
 	love.graphics.print("Fatigue: "..self.fatigue, self.x*Scale + Scale, self.y*Scale + 12*3)
 	local task = "Task: "

@@ -42,11 +42,13 @@ end
 function Cursor:draw()
 	love.graphics.setColor(1, 0, 0, 0.8)
 	love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
+end
 
-	if self.x == Cursor.x
-	and self.y == Cursor.y
-	and Scale > 16 then
-		love.graphics.setColor(1, 0, 0, 0.6)
-		love.graphics.print(self.x.."/"..self.y, (self.x + 1)*Scale, self.y*Scale)
+function Cursor:drawStats()
+	if Scale < 16 then
+		return -1
 	end
+
+	love.graphics.setColor(1, 0, 0, 0.8)
+	love.graphics.print(self.x.."•"..self.y, (self.x + 0)*Scale, (self.y + 1)*Scale)
 end

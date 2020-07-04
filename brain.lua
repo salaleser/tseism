@@ -52,25 +52,30 @@ function Brain:draw()
 	love.graphics.setColor(color)
 	love.graphics.ellipse("fill", self.x*Scale + Scale/2, self.y*Scale + 0.25*Scale, 0.14*Scale, 0.18*Scale)
 
-	-- draw stats
-	if true or self.x == Cursor.x
-	and self.y == Cursor.y
-	and Scale > 16 then
-		love.graphics.setColor(0.8, 0.5, 0.7, 1)
+	self:drawStats()
+end
 
-		love.graphics.print("Hunger: "..self.hunger, self.x*Scale + Scale, self.y*Scale + 12*5)
+function Brain:drawStats()
+	if self.x ~= Cursor.x
+	or self.y ~= Cursor.y
+	or Scale < 16 then
+		-- return -1
+	end
 
-		local memory = "Memory: "
-		for i,v in ipairs(self.memory) do
-			memory = memory..i..":"..v.x.."/"..v.y.."/".. v.z
-		end
-		love.graphics.print(memory, self.x*Scale + Scale, self.y*Scale + 12*6)
-		if self.task ~= nil then
-			love.graphics.print("Task: "..self.task.category..":"..self.task.code, self.x*Scale + Scale, self.y*Scale + 12*7)
-		end
-		if self.path ~= nil then
-			love.graphics.print("Path: "..#self.path, self.x*Scale + Scale, self.y*Scale + 12*8)
-		end
+	love.graphics.setColor(0.8, 0.5, 0.7, 1)
+
+	love.graphics.print("Hunger: "..self.hunger, self.x*Scale + Scale, self.y*Scale + 12*5)
+
+	local memory = "Memory: "
+	for i,v in ipairs(self.memory) do
+		memory = memory..i..":"..v.x.."/"..v.y.."/".. v.z
+	end
+	love.graphics.print(memory, self.x*Scale + Scale, self.y*Scale + 12*6)
+	if self.task ~= nil then
+		love.graphics.print("Task: "..self.task.category..":"..self.task.code, self.x*Scale + Scale, self.y*Scale + 12*7)
+	end
+	if self.path ~= nil then
+		love.graphics.print("Path: "..#self.path, self.x*Scale + Scale, self.y*Scale + 12*8)
 	end
 end
 

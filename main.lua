@@ -18,8 +18,13 @@ function love.load()
 	-- Creatures
 	require "base"
 	require "head"
+	require "manipulator"
 	require "brain"
 	require "motor"
+
+	love.graphics.setLineStyle("rough")
+	local font = love.graphics.newFont("18432.ttf", 16)
+	love.graphics.setFont(font)
 
 	StartTime = love.timer.getTime()
 
@@ -68,6 +73,7 @@ function love.load()
 		end
 	end
 
+	-- build Entities
 	Entities = {}
 
 	local base = Base(12, 12, 4)
@@ -78,6 +84,9 @@ function love.load()
 
 	local head = Head(base)
 	table.insert(Entities, head)
+
+	local manipulator = Manipulator(base)
+	table.insert(Entities, manipulator)
 
 	local brain = Brain(base, head)
 	table.insert(Entities, brain)
@@ -171,6 +180,7 @@ function love.draw()
 		end
 	end
 
+	-- GUI --
 	Cursor:draw()
 
 	love.graphics.setColor(1, 1, 1, 1)
@@ -224,8 +234,9 @@ function DrawPath(path)
 	if #path > 1 then
 		local x = path[#path].x*Scale + Scale/2
 		local y = path[#path].y*Scale + Scale/2
-		love.graphics.setColor(0.5, 1, 0.5, 0.8)
-		love.graphics.circle("line", x, y, Scale/4)
+		love.graphics.setColor(0.5, 1, 0.5, 0.5)
+		love.graphics.circle("line", x, y, Scale/2)
+
 		for i=2,#path do
 			local x1 = path[i-1].x*Scale + Scale/2
 			local y1 = path[i-1].y*Scale + Scale/2

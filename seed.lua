@@ -17,9 +17,16 @@ function Seed:draw()
 	love.graphics.setColor(1, 0.78, 0.15, 1)
 	love.graphics.circle("fill", self.x*Scale + Scale/4, self.y*Scale + Scale/4, Scale/8)
 
-	if self.x == Cursor.x
-	and self.y == Cursor.y
-	and Scale > 16 then
-		love.graphics.print("ID: "..self.id, self.x*Scale + Scale, self.y*Scale)
+	self:drawStats()
+end
+
+function Seed:drawStats()
+	if self.x ~= Cursor.x
+	or self.y ~= Cursor.y
+	or Scale < 16 then
+		return -1
 	end
+
+	love.graphics.setColor(1, 0.78, 0.15, 0.8)
+	love.graphics.print("ID: "..self.id, (self.x + 0)*Scale, (self.y + 0)*Scale - Scale/2)
 end

@@ -16,10 +16,16 @@ function Cell:draw()
 		love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
 	end
 
-	if self.x == Cursor.x
-	and self.y == Cursor.y
-	and Scale > 16 then
-		love.graphics.setColor(1, 1, 1, 0.2)
-		love.graphics.print(self.z, self.x*Scale, self.y*Scale)
+	self:drawStats()
+end
+
+function Cell:drawStats()
+	if self.x ~= Cursor.x
+	or self.y ~= Cursor.y
+	or Scale < 16 then
+		return -1
 	end
+
+	love.graphics.setColor(1, 1, 1, 0.6)
+	love.graphics.print(self.z, self.x*Scale, self.y*Scale)
 end
