@@ -12,7 +12,8 @@ function Motor:new(base)
 	self.task = nil
 
 	self.health = 100.0
-	self.speed = 0.02
+	self.fatigue = 0
+	self.speed = 10
 end
 
 function Motor:update(dt)
@@ -20,11 +21,14 @@ function Motor:update(dt)
 	self.y = self.base.y
 	self.z = self.base.z
 
-	self:manage()
-
-	if self.task ~= nil then
-		love.window.setTitle(self.task.code)
+	if self.fatigue > 0 then
+		self.fatigue = self.fatigue - self.speed * dt
+		if self.fatigue < 0 then
+			self.fatigue = 0
+		end
 	end
+
+	self:manage()
 
 	if self.task ~= nil then
 		local err = self:act()
@@ -55,6 +59,7 @@ function Motor:draw()
 		self.y*Scale + Scale/2
 	)
 
+	love.graphics.print("Fatigue: "..self.fatigue, self.x*Scale + Scale, self.y*Scale + 12*3)
 	local task = "Task: "
 	if self.task ~= nil then
 		task = task..self.task.category..":"..self.task.code
@@ -81,15 +86,20 @@ function Motor:act()
 			love.window.showMessageBox("ERROR", "self.task.x == nil or self.task.y == nil", {"OK"})
 			return -1
 		end
+
 		self:move(self.task.x, self.task.y)
-		self.task = nil
 	end
 end
 
 function Motor:move(x, y)
+	local cost = 5
+	if self.fatigue + cost > cost then
+		return -10
+	end
+
 	self.base.x = x
 	self.base.y = y
-	-- local angle = math.atan2(food.y - self.y, food.x - self.x)
-	-- self.base.x = self.base.x + self.speed * math.cos(angle)
-	-- self.base.y = self.base.y + self.speed * math.sin(angle)
+
+	self.fatigue = self.fatigue + cost
+	self.task = nil
 end

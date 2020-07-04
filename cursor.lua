@@ -42,4 +42,11 @@ end
 function Cursor:draw()
 	love.graphics.setColor(1, 0, 0, 0.8)
 	love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
+
+	if self.x == Cursor.x
+	and self.y == Cursor.y
+	and Scale > 16 then
+		love.graphics.setColor(1, 0, 0, 0.6)
+		love.graphics.print(self.x.."/"..self.y, (self.x + 1)*Scale, self.y*Scale)
+	end
 end

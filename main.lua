@@ -29,8 +29,8 @@ function love.load()
 	Scale = 32
 	ScaleLimit = 4096
 	WorldSize = {
-		width = 32,
-		height = 32,
+		width = 128,
+		height = 128,
 		depth = 8
 	}
 
@@ -61,7 +61,7 @@ function love.load()
 	for i=0,WorldSize.width do
 		for j=0,WorldSize.height do
 			for k=0,WorldSize.depth do
-				if love.math.random() > 0.95 then
+				if love.math.random() > 0.98 then
 					table.insert(Seeds, Seed(j, i, k))
 				end
 			end
@@ -85,22 +85,22 @@ end
 
 function love.update(dt)
 	for _,v in ipairs(Cells) do
-		v:update()
+		v:update(dt)
 	end
 
 	for _,v in ipairs(Blocks) do
-		v:update()
+		v:update(dt)
 	end
 
 	for _,v in ipairs(Seeds) do
-		v:update()
+		v:update(dt)
 	end
 
 	for _,v in ipairs(Entities) do
-		v:update()
+		v:update(dt)
 	end
 
-	Cursor:update()
+	Cursor:update(dt)
 end
 
 function love.keypressed(key, scancode, isrepeat)
@@ -143,8 +143,6 @@ function love.keypressed(key, scancode, isrepeat)
 			Menu = true
 		end
 	end
-
-	love.window.setTitle(Scale.." | "..Level.." | "..love.timer.getFPS())
 end
 
 function love.draw()
@@ -169,6 +167,7 @@ function love.draw()
 	for _,v in ipairs(Entities) do
 		if v.z == Level then
 			v:draw()
+			DrawPath(v.path)
 		end
 	end
 
@@ -185,7 +184,10 @@ function love.draw()
 		table.insert(info, "Keys: a z — level, 0 - = — scale, [ ] — scale")
 		local queue = "Queue: "
 		for i,v in ipairs(Queue) do
-			queue = queue..i.."."..v.category..":"..v.code.." | "
+			queue = queue..i.."."..v.category..":"..v.code
+			if v.x ~= nil and v.y ~= nil then
+				queue = queue..", "..v.x.."/"..v.y.." "
+			end
 		end
 		table.insert(info, queue)
 		DrawMenu(info)
@@ -211,5 +213,25 @@ function DrawMenu(list)
 	love.graphics.setColor(1, 1, 1, 1)
 	for i,v in ipairs(list) do
 		love.graphics.print(v, menu.x + 2, menu.y + lineHeight*(#list - i))
+	end
+end
+
+function DrawPath(path)
+	if path == nil then
+		return -1
+	end
+
+	if #path > 1 then
+		local x = path[#path].x*Scale + Scale/2
+		local y = path[#path].y*Scale + Scale/2
+		love.graphics.setColor(0.5, 1, 0.5, 0.8)
+		love.graphics.circle("line", x, y, Scale/4)
+		for i=2,#path do
+			local x1 = path[i-1].x*Scale + Scale/2
+			local y1 = path[i-1].y*Scale + Scale/2
+			local x2 = path[i].x*Scale + Scale/2
+			local y2 = path[i].y*Scale + Scale/2
+			love.graphics.line(x1, y1, x2, y2)
+		end
 	end
 end
