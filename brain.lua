@@ -33,7 +33,10 @@ function Brain:update(dt)
 
 	self:takeTask()
 
-	self:processTask()
+	local err = self:processTask()
+	if err then
+		Log:append("ERROR: "..err.." ("..self.id..") ["..self.x.."•"..self.y.."•"..self.z.."]: ")
+	end
 end
 
 function Brain:draw()
@@ -48,12 +51,34 @@ function Brain:draw()
 	love.graphics.ellipse("fill", self.x*Scale + Scale/2, self.y*Scale + 0.25*Scale, 0.14*Scale, 0.18*Scale)
 
 	if Cursor.selectedX == self.x
-	and Cursor.selectedY == self.y then
+	and Cursor.selectedY == self.y
+	and Cursor.selectedZ == self.z then
 		Menu:append(self)
 	end
 
+	self:drawTarget()
 	self:drawPath()
 	self:drawFov()
+end
+
+function Brain:drawTarget()
+	if self.task == nil
+	or (self.task.x == nil
+	and self.task.y == nil
+	and self.task.target == nil) then
+		return
+	end
+
+	local x = self.task.x
+	local y = self.task.y
+	if x == nil
+	or y == nil then
+		x = self.task.target.x
+		y = self.task.target.y
+	end
+
+	love.graphics.setColor(1, 0.5, 0.5, 0.5)
+	love.graphics.circle("line", x, y, Scale/2)
 end
 
 function Brain:drawPath()
@@ -107,12 +132,14 @@ end
 
 function Brain:processTask()
 	if self.task == nil then
-		return -1
+		return
 	end
 
 	if self.task.code == "EAT" then
-		-- find some eatable entity
 		local food = self:findFood()
+		if #food == 0 then
+			return self.type..".processTask: there is no food"
+		end
 
 		local target = food[1]
 
@@ -124,7 +151,8 @@ function Brain:processTask()
 			Queue:add(Task(self.id, "HEAD", "EAT", nil, nil, target))
 		else
 			-- move at food position
-			self:scanFovForObstacles()
+			local map = self:scanFovForObstacles()
+			pajarito.init(map, self.fovLimit*2, self.fovLimit*2, true)
 			self.path = pajarito.pathfinder(self.x, self.y, target.x, target.y)
 			if #self.path > 1 then
 				Queue:add(Task(self.id, "MOTOR", "MOVE", self.path[2].x, self.path[2].y, nil))
@@ -135,6 +163,7 @@ function Brain:processTask()
 	end
 end
 
+-- try find eatable entity
 function Brain:findFood()
 	local food = {}
 
@@ -142,12 +171,12 @@ function Brain:findFood()
 	local y1 = self.y - self.fovLimit
 	local x2 = self.x + self.fovLimit
 	local y2 = self.y + self.fovLimit
-	for i = x1, y1 do
-		for j = x2, y2 do
-			for _, v in ipairs(Seeds) do
-				if v.x == j and v.y == i then
-					table.insert(food, v)
-				else
+	for i = x1, x2 do
+		for j = y1, y2 do
+			for _, v in pairs(Seeds) do
+				if v.x == j
+				and v.y == i
+				and v.z == self.z then
 					table.insert(food, v)
 				end
 			end
@@ -159,20 +188,31 @@ end
 
 function Brain:scanFovForObstacles()
 	local obstaclesMap = {}
+
 	local x1 = self.x - self.fovLimit
 	local y1 = self.y - self.fovLimit
 	local x2 = self.x + self.fovLimit
 	local y2 = self.y + self.fovLimit
-	for i = x1, y1 do
-		for j = x2, y2 do
-			for _, v in ipairs(Blocks) do
-				if v.x == j and v.y == i then
-					table.insert(obstaclesMap, 0)
-				else
-					table.insert(obstaclesMap, 1)
-				end
+	for i = x1, x2 do
+		for j = y1, y2 do
+			if Brain.hasBlock(j, i) then
+				table.insert(obstaclesMap, 0)
+			else
+				table.insert(obstaclesMap, 1)
 			end
 		end
 	end
-	pajarito.init(obstaclesMap, self.fovLimit*2, self.fovLimit*2, true)
+
+	return obstaclesMap
+end
+
+function Brain.hasBlock(x, y)
+	for _, v in pairs(Blocks) do
+		if v.x == x
+		and v.y == y then
+			return true
+		end
+	end
+
+	return false
 end

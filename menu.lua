@@ -37,9 +37,15 @@ function Menu:draw()
 
 	local lineHeight = 12
 	local lines = {}
-	for _, v in pairs(self.list) do
+	for i, v in ipairs(self.list) do
 		if v.type ~= nil then
 			table.insert(lines, {"["..v.type.."]", v.color})
+		end
+		if v.x ~= nil
+		and v.y ~= nil
+		and v.z ~= nil
+		and i == 1 then
+			table.insert(lines, {" Position: "..v.x.."•"..v.y.."•"..v.z, v.color})
 		end
 		if v.id ~= nil then
 			table.insert(lines, {" ID: "..v.id, v.color})
@@ -71,6 +77,35 @@ function Menu:draw()
 		end
 		table.insert(lines, {""})
 	end
+
+	local queueColor = {1, 1, 0, 1}
+	table.insert(lines, {"[Queue]", queueColor})
+	for i, v in ipairs(Queue) do
+		local target = ""
+		if v.x ~= nil
+		and v.y ~= nil then
+			target = v.x..","..v.y
+		elseif v.target ~= nil then
+			target = v.target.x..","..v.target.y
+		end
+		table.insert(lines, {i..": "..v.category.."."..v.code.."("..target..")", queueColor})
+	end
+	table.insert(lines, {""})
+
+	table.insert(lines, {"[Status]"})
+	local fps = love.timer.getFPS()
+	local fpsColor = {0, 1, 0, 1}
+	if fps < 60
+	and fps > 55 then
+		fpsColor = {1, 1, 0, 1}
+	else
+		fpsColor = {1, 0, 0, 1}
+	end
+	table.insert(lines, {" FPS: "..love.timer.getFPS(), fpsColor})
+	table.insert(lines, {" Pointer: "..Cursor.x.."•"..Cursor.y})
+	table.insert(lines, {" Level: "..Level})
+	table.insert(lines, {" Scale: "..Scale})
+	table.insert(lines, {""})
 
 	table.insert(lines, {"[Help]"})
 	table.insert(lines, {" Keys:"})

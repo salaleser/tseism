@@ -51,7 +51,8 @@ function Motor:draw()
 	)
 
 	if Cursor.selectedX == self.x
-	and Cursor.selectedY == self.y then
+	and Cursor.selectedY == self.y
+	and Cursor.selectedZ == self.z then
 		Menu:append(self)
 	end
 end

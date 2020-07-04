@@ -5,6 +5,7 @@ function Cursor:new(x, y)
 	self.y = y
 	self.selectedX = nil
 	self.selectedY = nil
+	self.selectedZ = nil
 end
 
 function Cursor:update(dt)
@@ -20,11 +21,13 @@ function Cursor:update(dt)
 		Menu:clear()
 		self.selectedX = self.x
 		self.selectedY = self.y
+		self.selectedZ = Level
 	end
 
 	if love.mouse.isDown(2) then
 		Menu:clear()
 		self.selectedX = nil
+		self.selectedY = nil
 		self.selectedY = nil
 	end
 end
@@ -61,11 +64,16 @@ end
 
 function Cursor:drawSelection()
 	if self.selectedX == nil
-	or self.selectedY == nil then
+	or self.selectedY == nil
+	or self.selectedZ == nil
+	or self.selectedZ ~= Level then
 		return
 	end
 
 	love.graphics.setColor(1, 0, 0, 0.6)
-	love.graphics.setLineWidth(3)
+	love.graphics.setLineWidth(0.08*Scale)
 	love.graphics.rectangle("line", self.selectedX*Scale, self.selectedY*Scale, Scale, Scale)
+
+	love.graphics.setColor(1, 0, 0, 0.1)
+	love.graphics.rectangle("fill", self.selectedX*Scale, self.selectedY*Scale, Scale, Scale)
 end

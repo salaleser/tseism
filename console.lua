@@ -1,7 +1,7 @@
 Console = Object:extend()
 
 function Console:new()
-	self.visible = false
+	self.visible = true
 end
 
 function Console:keypressed(key, scancode, isrepeat)
@@ -19,25 +19,11 @@ function Console:draw()
 		return
 	end
 
-	local list = {}
-	table.insert(list, "Level: "..Level)
-	table.insert(list, "Scale: "..Scale)
-	table.insert(list, "FPS: "..love.timer.getFPS())
-	table.insert(list, "Pointer: "..Cursor.x.."•"..Cursor.y)
-	local queue = "Queue: "
-	for i, v in ipairs(Queue) do
-		queue = queue..i.."."..v.category..":"..v.code
-		if v.x ~= nil and v.y ~= nil then
-			queue = queue..", "..v.x.."/"..v.y.." "
-		end
-	end
-	table.insert(list, queue)
-
 	local lineHeight = 12
 	local x, y, w, h = love.window.getSafeArea()
 	local menu = {
 		x1 = 4,
-		y1 = h - lineHeight*#list,
+		y1 = h - lineHeight*#Log.list,
 		x2 = w - 8,
 		y2 = h - 4
 	}
@@ -51,7 +37,7 @@ function Console:draw()
 	love.graphics.rectangle("line", menu.x1, menu.y1, menu.x2, menu.y2)
 
 	love.graphics.setColor(1, 1, 1, 1)
-	for i, v in ipairs(list) do
-		love.graphics.print(v, menu.x1 + 2, menu.y1 + lineHeight*(#list - i))
+	for i, v in ipairs(Log.list) do
+		love.graphics.print(v, menu.x1 + 2, menu.y1 + lineHeight*(#Log.list - i))
 	end
 end

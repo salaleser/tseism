@@ -23,7 +23,8 @@ function Seed:draw()
 	love.graphics.circle("fill", self.x*Scale + Scale/4, self.y*Scale + Scale/4, Scale/8)
 
 	if Cursor.selectedX == self.x
-	and Cursor.selectedY == self.y then
+	and Cursor.selectedY == self.y
+	and Cursor.selectedZ == self.z then
 		Menu:append(self)
 	end
 end

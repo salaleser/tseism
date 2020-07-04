@@ -3,6 +3,7 @@ function love.load()
 	-- System
 	Object = require "libs/classic"
 	require "util"
+	require "log"
 	require "queue"
 	require "task"
 
@@ -44,6 +45,7 @@ function love.load()
 	Level = WorldSize.depth/2
 
 	Cursor = Cursor(WorldSize.width/2, WorldSize.height/2)
+	Log = Log()
 	Console = Console()
 	Menu = Menu()
 
@@ -70,7 +72,7 @@ function love.load()
 	for i = 0, WorldSize.width do
 		for j = 0, WorldSize.height do
 			for k = 0, WorldSize.depth do
-				if love.math.random() > 0.98 then
+				if love.math.random() > 0.95 then
 					table.insert(Seeds, Seed(j, i, k))
 				end
 			end
@@ -114,6 +116,7 @@ function love.update(dt)
 	end
 
 	Cursor:update(dt)
+	Log:update(dt)
 end
 
 function love.keypressed(key, scancode, isrepeat)
@@ -154,6 +157,10 @@ function love.keypressed(key, scancode, isrepeat)
 		if Scale < ScaleLimit then
 			Scale = Scale + 1
 		end
+	end
+
+	if key == "space" then
+		love.event.wait()
 	end
 
 	if key == "escape" then

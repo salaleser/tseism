@@ -12,7 +12,7 @@ function Head:new(base)
 
 	self.health = 100.0
 	self.fatigue = 0.0
-	self.force = 0.0
+	self.force = 2
 end
 
 function Head:update(dt)
@@ -21,7 +21,7 @@ function Head:update(dt)
 	self.z = self.base.z
 
 	if self.fatigue > 0 then
-		self.fatigue = self.fatigue - self.speed * dt
+		self.fatigue = self.fatigue - self.force * dt
 		if self.fatigue < 0 then
 			self.fatigue = 0
 		end
@@ -38,7 +38,8 @@ function Head:draw()
 	love.graphics.ellipse("line", self.x*Scale + Scale/2, self.y*Scale + 0.25*Scale, 0.2*Scale, 0.22*Scale)
 
 	if Cursor.selectedX == self.x
-	and Cursor.selectedY == self.y then
+	and Cursor.selectedY == self.y
+	and Cursor.selectedZ == self.z then
 		Menu:append(self)
 	end
 end

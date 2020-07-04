@@ -21,7 +21,8 @@ function Block:draw()
 	love.graphics.draw(self.tileset, self.quads[self.kind], self.x*Scale, self.y*Scale, 0, Scale/32, Scale/32)
 
 	if Cursor.selectedX == self.x
-	and Cursor.selectedY == self.y then
+	and Cursor.selectedY == self.y
+	and Cursor.selectedZ == self.z then
 		Menu:append(self)
 	end
 end
