@@ -1,8 +1,9 @@
 Manipulator = Object:extend()
-require "util"
 
 function Manipulator:new(base)
 	self.id = base.id
+	self.type = "Manipulator"
+	self.color = { 0.2, 0.4, 1, 1 }
 
 	self.base = base
 
@@ -11,6 +12,7 @@ function Manipulator:new(base)
 	self.z = base.z
 
 	self.health = 100.0
+	self.fatigue = 0.0
 end
 
 function Manipulator:update(dt)
@@ -20,12 +22,12 @@ function Manipulator:update(dt)
 end
 
 function Manipulator:draw()
-	love.graphics.setColor(0.2, 0.4, 1, 1)
+	love.graphics.setColor(self.color)
 	love.graphics.setLineWidth(3)
-	love.graphics.line(
-		self.x*Scale,
-		self.y*Scale + Scale/2,
-		self.x*Scale + Scale,
-		self.y*Scale + Scale/2
-	)
+	love.graphics.line(self.x*Scale, self.y*Scale + Scale/2, self.x*Scale + Scale, self.y*Scale + Scale/2)
+
+	if Cursor.selectedX == self.x
+	and Cursor.selectedY == self.y then
+		Menu:append(self)
+	end
 end

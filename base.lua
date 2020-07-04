@@ -1,8 +1,8 @@
 Base = Object:extend()
-require "util"
 
 function Base:new(x, y, z)
 	self.id = NewGuid()
+	self.type = "Base"
 
 	self.birth = love.timer.getTime() - StartTime
 
@@ -22,16 +22,8 @@ function Base:draw()
 	love.graphics.setLineWidth(1)
 	love.graphics.circle("line", self.x*Scale + Scale/2, self.y*Scale + Scale/2, 0.4*Scale)
 
-	self:drawStats()
-end
-
-function Base:drawStats()
-	if self.x ~= Cursor.x
-	or self.y ~= Cursor.y
-	or Scale < 16 then
-		return
+	if Cursor.selectedX == self.x
+	and Cursor.selectedY == self.y then
+		Menu:append(self)
 	end
-
-	love.graphics.setColor(1, 1, 1, 0.6)
-	love.graphics.print("ID: "..self.id, (self.x + 0)*Scale, (self.y + 0)*Scale - Scale/2)
 end

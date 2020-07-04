@@ -1,5 +1,4 @@
 Console = Object:extend()
-require "util"
 
 function Console:new()
 	self.visible = false
@@ -24,9 +23,9 @@ function Console:draw()
 	table.insert(list, "Level: "..Level)
 	table.insert(list, "Scale: "..Scale)
 	table.insert(list, "FPS: "..love.timer.getFPS())
-	table.insert(list, "Keys: a z — level, 0 - = — scale, [ ] — scale")
+	table.insert(list, "Pointer: "..Cursor.x.."•"..Cursor.y)
 	local queue = "Queue: "
-	for i,v in ipairs(Queue) do
+	for i, v in ipairs(Queue) do
 		queue = queue..i.."."..v.category..":"..v.code
 		if v.x ~= nil and v.y ~= nil then
 			queue = queue..", "..v.x.."/"..v.y.." "
@@ -52,7 +51,7 @@ function Console:draw()
 	love.graphics.rectangle("line", menu.x1, menu.y1, menu.x2, menu.y2)
 
 	love.graphics.setColor(1, 1, 1, 1)
-	for i,v in ipairs(list) do
+	for i, v in ipairs(list) do
 		love.graphics.print(v, menu.x1 + 2, menu.y1 + lineHeight*(#list - i))
 	end
 end

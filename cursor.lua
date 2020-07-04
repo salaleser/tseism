@@ -3,6 +3,8 @@ Cursor = Object:extend()
 function Cursor:new(x, y)
 	self.x = x
 	self.y = y
+	self.selectedX = nil
+	self.selectedY = nil
 end
 
 function Cursor:update(dt)
@@ -12,6 +14,18 @@ function Cursor:update(dt)
 	if x ~= self.x or y ~= self.y then
 		self.x = math.ceil(mouse_x/Scale) - 1
 		self.y = math.ceil(mouse_y/Scale) - 1
+	end
+
+	if love.mouse.isDown(1) then
+		Menu:clear()
+		self.selectedX = self.x
+		self.selectedY = self.y
+	end
+
+	if love.mouse.isDown(2) then
+		Menu:clear()
+		self.selectedX = nil
+		self.selectedY = nil
 	end
 end
 
@@ -42,14 +56,16 @@ function Cursor:draw()
 	love.graphics.setLineWidth(1)
 	love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
 
-	self:drawStats()
+	self:drawSelection()
 end
 
-function Cursor:drawStats()
-	if Scale < 16 then
+function Cursor:drawSelection()
+	if self.selectedX == nil
+	or self.selectedY == nil then
 		return
 	end
 
-	love.graphics.setColor(1, 0, 0, 0.8)
-	love.graphics.print(self.x.."•"..self.y, (self.x + 0)*Scale, (self.y + 1)*Scale)
+	love.graphics.setColor(1, 0, 0, 0.6)
+	love.graphics.setLineWidth(3)
+	love.graphics.rectangle("line", self.selectedX*Scale, self.selectedY*Scale, Scale, Scale)
 end

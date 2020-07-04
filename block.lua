@@ -1,14 +1,14 @@
 Block = Object:extend()
-require "util"
 
-function Block:new(x, y, z, type)
+function Block:new(x, y, z, kind)
 	self.id = NewGuid()
+	self.type = "Block"
 
 	self.x = x
 	self.y = y
 	self.z = z
 
-	self.type = type
+	self.kind = kind
 end
 
 function Block:update(dt)
@@ -18,20 +18,12 @@ end
 function Block:draw()
 	love.graphics.setColor(0.2, 0.8, 0.2, 1)
 	love.graphics.setLineWidth(1)
-	love.graphics.draw(self.tileset, self.quads[self.type], self.x*Scale, self.y*Scale, 0, Scale/32, Scale/32)
+	love.graphics.draw(self.tileset, self.quads[self.kind], self.x*Scale, self.y*Scale, 0, Scale/32, Scale/32)
 
-	self:drawStats()
-end
-
-function Block:drawStats()
-	if self.x ~= Cursor.x
-	or self.y ~= Cursor.y
-	or Scale < 16 then
-		return
+	if Cursor.selectedX == self.x
+	and Cursor.selectedY == self.y then
+		Menu:append(self)
 	end
-
-	love.graphics.setColor(1, 1, 1, 0.6)
-	love.graphics.print("ID: "..self.id, (self.x + 0)*Scale, (self.y + 0)*Scale - Scale/2)
 end
 
 function Block:init()
@@ -41,8 +33,8 @@ function Block:init()
 	local ih = self.tileset:getHeight()
 	local w = (iw / 3) - 2
 	local h = (ih / 4) - 2
-	for i=0,3 do
-		for j=0,2 do
+	for i = 0, 3 do
+		for j = 0, 2 do
 			local x = 1 + j * (w + 2)
 			local y = 1 + i * (h + 2)
 			local quad = love.graphics.newQuad(x, y, w, h, iw, ih)

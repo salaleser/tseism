@@ -1,8 +1,8 @@
 Head = Object:extend()
-require "util"
 
 function Head:new(base)
 	self.id = base.id
+	self.type = "Head"
 
 	self.base = base
 
@@ -36,10 +36,15 @@ function Head:draw()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setLineWidth(1)
 	love.graphics.ellipse("line", self.x*Scale + Scale/2, self.y*Scale + 0.25*Scale, 0.2*Scale, 0.22*Scale)
+
+	if Cursor.selectedX == self.x
+	and Cursor.selectedY == self.y then
+		Menu:append(self)
+	end
 end
 
 function Head:takeTask()
-	for i,v in ipairs(Queue) do
+	for i, v in ipairs(Queue) do
 		if v.contractor == self.id
 		and v.category == "HEAD" then
 			self.task = v
@@ -60,7 +65,7 @@ function Head:processTask()
 		end
 
 		self.task.target.health = self.task.target.health - 20
-		QueueAdd(Task(self.id, "INTEL", "SATIATE"))
+		Queue:add(Task(self.id, "INTEL", "SATIATE"))
 
 		self.fatigue = self.fatigue + cost
 		self.task = nil

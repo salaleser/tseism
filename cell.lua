@@ -1,6 +1,8 @@
 Cell = Object:extend()
 
 function Cell:new(x, y, z)
+	self.type = "Cell"
+
 	self.x = x
 	self.y = y
 	self.z = z
@@ -17,16 +19,8 @@ function Cell:draw()
 		love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
 	end
 
-	self:drawStats()
-end
-
-function Cell:drawStats()
-	if self.x ~= Cursor.x
-	or self.y ~= Cursor.y
-	or Scale < 16 then
-		return -1
+	if Cursor.selectedX == self.x
+	and Cursor.selectedY == self.y then
+		Menu:append(self)
 	end
-
-	love.graphics.setColor(1, 1, 1, 0.6)
-	love.graphics.print(self.z, self.x*Scale, self.y*Scale)
 end

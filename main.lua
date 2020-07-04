@@ -1,5 +1,9 @@
 function love.load()
+
+	-- System
 	Object = require "libs/classic"
+	require "util"
+	require "queue"
 	require "task"
 
 	-- GUI
@@ -30,8 +34,6 @@ function love.load()
 
 	StartTime = love.timer.getTime()
 
-	Queue = {}
-
 	Scale = 32
 	ScaleLimit = 4096
 	WorldSize = {
@@ -46,9 +48,9 @@ function love.load()
 	Menu = Menu()
 
 	Cells = {}
-	for i=0,WorldSize.width do
-		for j=0,WorldSize.height do
-			for k=0,WorldSize.depth do
+	for i = 0,WorldSize.width do
+		for j = 0,WorldSize.height do
+			for k = 0,WorldSize.depth do
 				table.insert(Cells, Cell(j, i, k))
 			end
 		end
@@ -56,18 +58,18 @@ function love.load()
 
 	Block:init()
 	Blocks = {}
-	for i,row in ipairs(Ship1) do
-		for j,type in ipairs(row) do
-			if type ~= 0 then
-				table.insert(Blocks, Block(j, i, 4, type))
+	for i, row in ipairs(Ship1) do
+		for j, kind in ipairs(row) do
+			if kind ~= 0 then
+				table.insert(Blocks, Block(j, i, 4, kind))
 			end
 		end
 	end
 
 	Seeds = {}
-	for i=0,WorldSize.width do
-		for j=0,WorldSize.height do
-			for k=0,WorldSize.depth do
+	for i = 0, WorldSize.width do
+		for j = 0, WorldSize.height do
+			for k = 0, WorldSize.depth do
 				if love.math.random() > 0.98 then
 					table.insert(Seeds, Seed(j, i, k))
 				end
@@ -95,19 +97,19 @@ function love.load()
 end
 
 function love.update(dt)
-	for _,v in ipairs(Cells) do
+	for _, v in ipairs(Cells) do
 		v:update(dt)
 	end
 
-	for _,v in ipairs(Blocks) do
+	for _, v in ipairs(Blocks) do
 		v:update(dt)
 	end
 
-	for _,v in ipairs(Seeds) do
+	for _, v in ipairs(Seeds) do
 		v:update(dt)
 	end
 
-	for _,v in ipairs(Entities) do
+	for _, v in ipairs(Entities) do
 		v:update(dt)
 	end
 
@@ -153,28 +155,36 @@ function love.keypressed(key, scancode, isrepeat)
 			Scale = Scale + 1
 		end
 	end
+
+	if key == "escape" then
+		love.event.quit()
+	end
+
+	if key == "r" then
+		love.event.quit("restart")
+	end
 end
 
 function love.draw()
-	for _,v in ipairs(Cells) do
+	for _, v in ipairs(Cells) do
 		if v.z == Level then
 			v:draw()
 		end
 	end
 
-	for _,v in ipairs(Blocks) do
+	for _, v in ipairs(Blocks) do
 		if v.z == Level then
 			v:draw()
 		end
 	end
 
-	for _,v in ipairs(Seeds) do
+	for _, v in ipairs(Seeds) do
 		if v.z == Level then
 			v:draw()
 		end
 	end
 
-	for _,v in ipairs(Entities) do
+	for _, v in ipairs(Entities) do
 		if v.z == Level then
 			v:draw()
 		end
@@ -188,10 +198,4 @@ function love.draw()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setLineWidth(1)
 	love.graphics.rectangle("line", 0, 0, (WorldSize.width + 1)*Scale, (WorldSize.height + 1)*Scale)
-end
-
-function QueueAdd(task)
-	if not Contains(Queue, task) then
-		table.insert(Queue, task)
-	end
 end

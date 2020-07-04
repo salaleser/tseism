@@ -1,8 +1,9 @@
 Motor = Object:extend()
-require "util"
 
 function Motor:new(base)
 	self.id = base.id
+	self.type = "Motor"
+	self.color = { 0, 0, 0.8, 1 }
 
 	self.x = base.x
 	self.y = base.y
@@ -34,7 +35,7 @@ function Motor:update(dt)
 end
 
 function Motor:draw()
-	love.graphics.setColor(0, 0, 0.8, 1)
+	love.graphics.setColor(self.color)
 	love.graphics.setLineWidth(3)
 	love.graphics.line(
 		self.x*Scale,
@@ -49,29 +50,14 @@ function Motor:draw()
 		self.y*Scale + Scale
 	)
 
-	self:drawStats()
-end
-
-function Motor:drawStats()
-	if self.x ~= Cursor.x
-	or self.y ~= Cursor.y
-	or Scale < 16 then
-		-- return
-	end
-
-	love.graphics.print("Fatigue: "..self.fatigue, self.x*Scale + Scale, self.y*Scale + 12*3)
-	local task = "Task: "
-	if self.task ~= nil then
-		task = task..self.task.category..":"..self.task.code
-		if self.task.entity ~= nil then
-			task = task.." ("..self.task.entity.x.."/"..self.task.entity.y..")"
-		end
-		love.graphics.print(task, self.x*Scale + Scale, self.y*Scale)
+	if Cursor.selectedX == self.x
+	and Cursor.selectedY == self.y then
+		Menu:append(self)
 	end
 end
 
 function Motor:takeTask()
-	for i,v in ipairs(Queue) do
+	for i, v in ipairs(Queue) do
 		if v.contractor == self.id
 		and v.category == "MOTOR" then
 			self.task = v

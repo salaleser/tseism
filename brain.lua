@@ -1,9 +1,10 @@
 Brain = Object:extend()
 local pajarito = require "libs/pajarito"
-require "util"
 
 function Brain:new(base, parent)
 	self.id = base.id
+	self.type = "Brain"
+	self.color = { 0.8, 0.5, 0.7, 1 }
 
 	self.x = parent.x
 	self.y = parent.y
@@ -27,7 +28,7 @@ function Brain:update(dt)
 	self.hunger = self.hunger + 2 * dt
 
 	if self.hunger > 10 then
-		QueueAdd(Task(self.id, "INTEL", "EAT", nil, nil))
+		Queue:add(Task(self.id, "INTEL", "EAT", nil, nil))
 	end
 
 	self:takeTask()
@@ -40,35 +41,19 @@ function Brain:draw()
 	-- draw brain
 	local color = { 0.8, 0.5, 0.7, 0.5 }
 	if self.task ~= nil then
-		color = { 0.8, 0.5, 0.7, 1 }
+		color = self.color
 	end
 	love.graphics.setColor(color)
 	love.graphics.setLineWidth(1)
 	love.graphics.ellipse("fill", self.x*Scale + Scale/2, self.y*Scale + 0.25*Scale, 0.14*Scale, 0.18*Scale)
 
-	self:drawStats()
+	if Cursor.selectedX == self.x
+	and Cursor.selectedY == self.y then
+		Menu:append(self)
+	end
+
 	self:drawPath()
 	self:drawFov()
-end
-
-function Brain:drawStats()
-	if self.x ~= Cursor.x
-	or self.y ~= Cursor.y
-	or Scale < 16 then
-		-- return
-	end
-
-	love.graphics.setColor(0.8, 0.5, 0.7, 1)
-
-	love.graphics.print("Hunger: "..self.hunger, (self.x + 1)*Scale, self.y*Scale + 12*5)
-
-	if self.task ~= nil then
-		love.graphics.print("Task: "..self.task.category..":"..self.task.code, self.x*Scale + Scale, self.y*Scale + 12*7)
-	end
-
-	if self.path ~= nil then
-		love.graphics.print("Path: "..#self.path, self.x*Scale + Scale, self.y*Scale + 12*8)
-	end
 end
 
 function Brain:drawPath()
@@ -82,7 +67,7 @@ function Brain:drawPath()
 	love.graphics.setColor(0.5, 1, 0.5, 0.5)
 	love.graphics.circle("line", x, y, Scale/2)
 
-	for i=2,#self.path do
+	for i = 2, #self.path do
 		local x1 = self.path[i-1].x*Scale + Scale/2
 		local y1 = self.path[i-1].y*Scale + Scale/2
 		local x2 = self.path[i].x*Scale + Scale/2
@@ -92,19 +77,19 @@ function Brain:drawPath()
 end
 
 function Brain:drawFov()
-	if self.x ~= Cursor.x
-	or self.y ~= Cursor.y
+	if self.x ~= Cursor.selectedX
+	or self.y ~= Cursor.selectedY
 	or Scale < 16 then
 		return
 	end
 
 	love.graphics.setColor(0, 1, 0, 0.15)
-	local fov_x1 = self.x - self.fovLimit
-	local fov_y1 = self.x + self.fovLimit
-	local fov_x2 = self.y - self.fovLimit
-	local fov_y2 = self.y + self.fovLimit
-	for i=fov_x1, fov_y1 do
-		for j=fov_x2,fov_y2 do
+	local fovX1 = self.x - self.fovLimit
+	local fovY1 = self.x + self.fovLimit
+	local fovX2 = self.y - self.fovLimit
+	local fovY2 = self.y + self.fovLimit
+	for i = fovX1, fovY1 do
+		for j = fovX2, fovY2 do
 			love.graphics.rectangle("fill", i*Scale, j*Scale, Scale, Scale)
 		end
 	end
@@ -136,13 +121,13 @@ function Brain:processTask()
 		and self.y == target.y
 		and self.z == target.z then
 			-- eat food at self position
-			QueueAdd(Task(self.id, "HEAD", "EAT", nil, nil, target))
+			Queue:add(Task(self.id, "HEAD", "EAT", nil, nil, target))
 		else
 			-- move at food position
 			self:scanFovForObstacles()
 			self.path = pajarito.pathfinder(self.x, self.y, target.x, target.y)
 			if #self.path > 1 then
-				QueueAdd(Task(self.id, "MOTOR", "MOVE", self.path[2].x, self.path[2].y, nil))
+				Queue:add(Task(self.id, "MOTOR", "MOVE", self.path[2].x, self.path[2].y, nil))
 			end
 		end
 	elseif self.task.code == "SATIATE" then
@@ -157,9 +142,9 @@ function Brain:findFood()
 	local y1 = self.y - self.fovLimit
 	local x2 = self.x + self.fovLimit
 	local y2 = self.y + self.fovLimit
-	for i=x1,y1 do
-		for j=x2,y2 do
-			for _,v in ipairs(Seeds) do
+	for i = x1, y1 do
+		for j = x2, y2 do
+			for _, v in ipairs(Seeds) do
 				if v.x == j and v.y == i then
 					table.insert(food, v)
 				else
@@ -178,9 +163,9 @@ function Brain:scanFovForObstacles()
 	local y1 = self.y - self.fovLimit
 	local x2 = self.x + self.fovLimit
 	local y2 = self.y + self.fovLimit
-	for i=x1,y1 do
-		for j=x2,y2 do
-			for _,v in ipairs(Blocks) do
+	for i = x1, y1 do
+		for j = x2, y2 do
+			for _, v in ipairs(Blocks) do
 				if v.x == j and v.y == i then
 					table.insert(obstaclesMap, 0)
 				else
