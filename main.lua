@@ -1,9 +1,11 @@
 function love.load()
-	Object = require "classic"
+	Object = require "libs/classic"
 	require "task"
 
 	-- GUI
 	require "cursor"
+	require "console"
+	require "menu"
 
 	-- World
 	require "cell"
@@ -28,7 +30,6 @@ function love.load()
 
 	StartTime = love.timer.getTime()
 
-	Menu = true
 	Queue = {}
 
 	Scale = 32
@@ -38,9 +39,11 @@ function love.load()
 		height = 128,
 		depth = 8
 	}
+	Level = WorldSize.depth/2
 
 	Cursor = Cursor(WorldSize.width/2, WorldSize.height/2)
-	Level = WorldSize.depth/2
+	Console = Console()
+	Menu = Menu()
 
 	Cells = {}
 	for i=0,WorldSize.width do
@@ -52,7 +55,6 @@ function love.load()
 	end
 
 	Block:init()
-
 	Blocks = {}
 	for i,row in ipairs(Ship1) do
 		for j,type in ipairs(row) do
@@ -113,6 +115,10 @@ function love.update(dt)
 end
 
 function love.keypressed(key, scancode, isrepeat)
+	Cursor:keypressed(key, scancode, isrepeat)
+	Console:keypressed(key, scancode, isrepeat)
+	Menu:keypressed(key, scancode, isrepeat)
+
 	if key == "z" then
 		if Level > 0 then
 			Level = Level - 1
@@ -131,6 +137,9 @@ function love.keypressed(key, scancode, isrepeat)
 		if Scale <= ScaleLimit then
 			Scale = Scale * 2
 		end
+		if Scale > ScaleLimit then
+			Scale = ScaleLimit
+		end
 	elseif key == "0" then
 		Scale = 32
 	end
@@ -142,14 +151,6 @@ function love.keypressed(key, scancode, isrepeat)
 	elseif key == "]" then
 		if Scale < ScaleLimit then
 			Scale = Scale + 1
-		end
-	end
-
-	if key == "i" then
-		if Menu then
-			Menu = false
-		else
-			Menu = true
 		end
 	end
 end
@@ -181,46 +182,16 @@ function love.draw()
 
 	-- GUI --
 	Cursor:draw()
+	Menu:draw()
+	Console:draw()
 
 	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setLineWidth(1)
 	love.graphics.rectangle("line", 0, 0, (WorldSize.width + 1)*Scale, (WorldSize.height + 1)*Scale)
-
-	-- MENU --
-	if Menu then
-		local info = {}
-		table.insert(info, "Level: "..Level)
-		table.insert(info, "Scale: "..Scale)
-		table.insert(info, "Keys: a z — level, 0 - = — scale, [ ] — scale")
-		local queue = "Queue: "
-		for i,v in ipairs(Queue) do
-			queue = queue..i.."."..v.category..":"..v.code
-			if v.x ~= nil and v.y ~= nil then
-				queue = queue..", "..v.x.."/"..v.y.." "
-			end
-		end
-		table.insert(info, queue)
-		DrawMenu(info)
-	end
 end
 
-function DrawMenu(list)
-	local lineHeight = 12
-	local x, y, w, h = love.window.getSafeArea()
-	local menu = {
-		x = 4,
-		y = h - lineHeight*#list,
-		w = w - 8,
-		h = h - 4
-	}
-
-	love.graphics.setColor(0, 0, 0, 0.7)
-	love.graphics.rectangle("fill", menu.x, menu.y, menu.w, menu.h)
-
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.rectangle("line", menu.x, menu.y, menu.w, menu.h)
-
-	love.graphics.setColor(1, 1, 1, 1)
-	for i,v in ipairs(list) do
-		love.graphics.print(v, menu.x + 2, menu.y + lineHeight*(#list - i))
+function QueueAdd(task)
+	if not Contains(Queue, task) then
+		table.insert(Queue, task)
 	end
 end

@@ -28,19 +28,14 @@ function Motor:update(dt)
 		end
 	end
 
-	self:manage()
+	self:takeTask()
 
-	if self.task ~= nil then
-		local err = self:act()
-		if err == -1 then
-			love.window.showMessageBox("ERROR", "local err = self:act()", {"OK"})
-		end
-	end
+	self:processTask()
 end
 
 function Motor:draw()
-	love.graphics.setLineWidth(3)
 	love.graphics.setColor(0, 0, 0.8, 1)
+	love.graphics.setLineWidth(3)
 	love.graphics.line(
 		self.x*Scale,
 		self.y*Scale,
@@ -53,7 +48,6 @@ function Motor:draw()
 		self.x*Scale,
 		self.y*Scale + Scale
 	)
-	love.graphics.setLineWidth(1)
 
 	self:drawStats()
 end
@@ -62,7 +56,7 @@ function Motor:drawStats()
 	if self.x ~= Cursor.x
 	or self.y ~= Cursor.y
 	or Scale < 16 then
-		-- return -1
+		-- return
 	end
 
 	love.graphics.print("Fatigue: "..self.fatigue, self.x*Scale + Scale, self.y*Scale + 12*3)
@@ -76,7 +70,7 @@ function Motor:drawStats()
 	end
 end
 
-function Motor:manage()
+function Motor:takeTask()
 	for i,v in ipairs(Queue) do
 		if v.contractor == self.id
 		and v.category == "MOTOR" then
@@ -86,26 +80,21 @@ function Motor:manage()
 	end
 end
 
-function Motor:act()
+function Motor:processTask()
+	if self.task == nil then
+		return
+	end
+
 	if self.task.code == "MOVE" then
-		if self.task.x == nil or self.task.y == nil then
-			love.window.showMessageBox("ERROR", "self.task.x == nil or self.task.y == nil", {"OK"})
-			return -1
+		local cost = 5
+		if self.fatigue + cost > cost then
+			return -10
 		end
 
-		self:move(self.task.x, self.task.y)
+		self.base.x = self.task.x
+		self.base.y = self.task.y
+
+		self.fatigue = self.fatigue + cost
+		self.task = nil
 	end
-end
-
-function Motor:move(x, y)
-	local cost = 5
-	if self.fatigue + cost > cost then
-		return -10
-	end
-
-	self.base.x = x
-	self.base.y = y
-
-	self.fatigue = self.fatigue + cost
-	self.task = nil
 end

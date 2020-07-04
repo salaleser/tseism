@@ -10,29 +10,27 @@ function Cursor:update(dt)
 	local x = math.ceil(mouse_x/Scale) - 1
 	local y = math.ceil(mouse_y/Scale) - 1
 	if x ~= self.x or y ~= self.y then
-		-- if self.x > 0 and self.x < WorldSize.width then
-			self.x = math.ceil(mouse_x/Scale) - 1
-		-- end
-		-- if self.y > 0 and self.y < WorldSize.height then
-			self.y = math.ceil(mouse_y/Scale) - 1
-		-- end
+		self.x = math.ceil(mouse_x/Scale) - 1
+		self.y = math.ceil(mouse_y/Scale) - 1
 	end
+end
 
-	if love.keyboard.isDown("up") then
+function Cursor:keypressed(key, scancode, isrepeat)
+	if key == "up" then
 		if self.y > 0 then
 			self.y = self.y - 1
 		end
-	elseif love.keyboard.isDown("down") then
+	elseif key == "down" then
 		if self.y < WorldSize.width then
 			self.y = self.y + 1
 		end
 	end
 
-	if love.keyboard.isDown("left") then
+	if key == "left" then
 		if self.x > 0 then
 			self.x = self.x - 1
 		end
-	elseif love.keyboard.isDown("right") then
+	elseif key == "right" then
 		if self.x < WorldSize.width then
 			self.x = self.x + 1
 		end
@@ -41,12 +39,15 @@ end
 
 function Cursor:draw()
 	love.graphics.setColor(1, 0, 0, 0.8)
+	love.graphics.setLineWidth(1)
 	love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
+
+	self:drawStats()
 end
 
 function Cursor:drawStats()
 	if Scale < 16 then
-		return -1
+		return
 	end
 
 	love.graphics.setColor(1, 0, 0, 0.8)

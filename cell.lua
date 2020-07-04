@@ -13,6 +13,7 @@ end
 function Cell:draw()
 	if Scale > 12 then
 		love.graphics.setColor(1, 1, 1, 0.4)
+		love.graphics.setLineWidth(1)
 		love.graphics.rectangle("line", self.x*Scale, self.y*Scale, Scale, Scale)
 	end
 

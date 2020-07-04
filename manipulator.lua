@@ -28,5 +28,4 @@ function Manipulator:draw()
 		self.x*Scale + Scale,
 		self.y*Scale + Scale/2
 	)
-	love.graphics.setLineWidth(1)
 end

@@ -1,5 +1,5 @@
 Brain = Object:extend()
-local pajarito = require 'pajarito'
+local pajarito = require "libs/pajarito"
 require "util"
 
 function Brain:new(base, parent)
@@ -12,13 +12,11 @@ function Brain:new(base, parent)
 	self.base = base
 	self.parent = parent
 	self.task = nil
+	self.path = nil
+	self.fieldOfView = {}
+	self.fovLimit = 6
 
-	self.path = {}
-
-	self.fatigue = 0.0
 	self.hunger = 8.0
-
-	self.memory = {}
 end
 
 function Brain:update(dt)
@@ -29,17 +27,12 @@ function Brain:update(dt)
 	self.hunger = self.hunger + 2 * dt
 
 	if self.hunger > 10 then
-		local task = Task(self.id, "INTEL", "EAT", nil, nil)
-		if Contains(Queue, task) == false then
-			table.insert(Queue, task)
-		end
+		QueueAdd(Task(self.id, "INTEL", "EAT", nil, nil))
 	end
 
-	self:manage()
+	self:takeTask()
 
-	if self.task ~= nil then
-		self:act()
-	end
+	self:processTask()
 end
 
 function Brain:draw()
@@ -50,31 +43,29 @@ function Brain:draw()
 		color = { 0.8, 0.5, 0.7, 1 }
 	end
 	love.graphics.setColor(color)
+	love.graphics.setLineWidth(1)
 	love.graphics.ellipse("fill", self.x*Scale + Scale/2, self.y*Scale + 0.25*Scale, 0.14*Scale, 0.18*Scale)
 
 	self:drawStats()
 	self:drawPath()
+	self:drawFov()
 end
 
 function Brain:drawStats()
 	if self.x ~= Cursor.x
 	or self.y ~= Cursor.y
 	or Scale < 16 then
-		-- return -1
+		-- return
 	end
 
 	love.graphics.setColor(0.8, 0.5, 0.7, 1)
 
-	love.graphics.print("Hunger: "..self.hunger, self.x*Scale + Scale, self.y*Scale + 12*5)
+	love.graphics.print("Hunger: "..self.hunger, (self.x + 1)*Scale, self.y*Scale + 12*5)
 
-	local memory = "Memory: "
-	for i,v in ipairs(self.memory) do
-		memory = memory..i..":"..v.x.."/"..v.y.."/".. v.z
-	end
-	love.graphics.print(memory, self.x*Scale + Scale, self.y*Scale + 12*6)
 	if self.task ~= nil then
 		love.graphics.print("Task: "..self.task.category..":"..self.task.code, self.x*Scale + Scale, self.y*Scale + 12*7)
 	end
+
 	if self.path ~= nil then
 		love.graphics.print("Path: "..#self.path, self.x*Scale + Scale, self.y*Scale + 12*8)
 	end
@@ -83,7 +74,7 @@ end
 function Brain:drawPath()
 	if self.path == nil
 	or #self.path < 2 then
-		return -1
+		return
 	end
 
 	local x = self.path[#self.path].x*Scale + Scale/2
@@ -100,7 +91,26 @@ function Brain:drawPath()
 	end
 end
 
-function Brain:manage()
+function Brain:drawFov()
+	if self.x ~= Cursor.x
+	or self.y ~= Cursor.y
+	or Scale < 16 then
+		return
+	end
+
+	love.graphics.setColor(0, 1, 0, 0.15)
+	local fov_x1 = self.x - self.fovLimit
+	local fov_y1 = self.x + self.fovLimit
+	local fov_x2 = self.y - self.fovLimit
+	local fov_y2 = self.y + self.fovLimit
+	for i=fov_x1, fov_y1 do
+		for j=fov_x2,fov_y2 do
+			love.graphics.rectangle("fill", i*Scale, j*Scale, Scale, Scale)
+		end
+	end
+end
+
+function Brain:takeTask()
 	for i,v in ipairs(Queue) do
 		if v.contractor == self.id
 		and v.category == "INTEL" then
@@ -110,48 +120,74 @@ function Brain:manage()
 	end
 end
 
-function Brain:act()
-	self:scan()
+function Brain:processTask()
+	if self.task == nil then
+		return -1
+	end
 
-	-- move
-	if #self.memory > 0 then
-		local food = self.memory[1]
-		self.path = pajarito.pathfinder(self.x, self.y, food.x, food.y)
-		if #self.path > 1 then
-			local task = Task(self.id, "MOTOR", "MOVE", self.path[2].x, self.path[2].y)
-			if Contains(Queue, task) == false then
-				table.insert(Queue, task)
+	if self.task.code == "EAT" then
+		-- find some eatable entity
+		local food = self:findFood()
+
+		local target = food[1]
+
+		-- make orders
+		if self.x == target.x
+		and self.y == target.y
+		and self.z == target.z then
+			-- eat food at self position
+			QueueAdd(Task(self.id, "HEAD", "EAT", nil, nil, target))
+		else
+			-- move at food position
+			self:scanFovForObstacles()
+			self.path = pajarito.pathfinder(self.x, self.y, target.x, target.y)
+			if #self.path > 1 then
+				QueueAdd(Task(self.id, "MOTOR", "MOVE", self.path[2].x, self.path[2].y, nil))
 			end
 		end
+	elseif self.task.code == "SATIATE" then
+		self.hunger = self.hunger + 5
 	end
 end
 
-function Brain:scan()
-	local map = {}
-	local viewDistanceX1 = self.x - 16
-	local viewDistanceY1 = self.y - 16
-	local viewDistanceX2 = self.x + 16
-	local viewDistanceY2 = self.y + 16
-	for i=viewDistanceX1,viewDistanceX2 do
-		for j=viewDistanceY1,viewDistanceY2 do
-			for _,v in ipairs(Blocks) do
+function Brain:findFood()
+	local food = {}
+
+	local x1 = self.x - self.fovLimit
+	local y1 = self.y - self.fovLimit
+	local x2 = self.x + self.fovLimit
+	local y2 = self.y + self.fovLimit
+	for i=x1,y1 do
+		for j=x2,y2 do
+			for _,v in ipairs(Seeds) do
 				if v.x == j and v.y == i then
-					table.insert(map, 0)
+					table.insert(food, v)
 				else
-					table.insert(map, 1)
+					table.insert(food, v)
 				end
 			end
 		end
 	end
-	pajarito.init(map, WorldSize.width, WorldSize.height, true)
-	for _,v in ipairs(Seeds) do
-		local h_distance = v.x - self.x
-		local v_distance = v.y - self.y
-		local distance = math.sqrt(h_distance^2 + v_distance^2)
-		if v.z == self.z and distance < 9 then
-			if Contains(self.memory, v) == false then
-				table.insert(self.memory, v)
+
+	return food
+end
+
+function Brain:scanFovForObstacles()
+	local obstaclesMap = {}
+	local x1 = self.x - self.fovLimit
+	local y1 = self.y - self.fovLimit
+	local x2 = self.x + self.fovLimit
+	local y2 = self.y + self.fovLimit
+	for i=x1,y1 do
+		for j=x2,y2 do
+			for _,v in ipairs(Blocks) do
+				if v.x == j and v.y == i then
+					table.insert(obstaclesMap, 0)
+				else
+					table.insert(obstaclesMap, 1)
+				end
 			end
 		end
 	end
+	pajarito.init(obstaclesMap, self.fovLimit*2, self.fovLimit*2, true)
 end

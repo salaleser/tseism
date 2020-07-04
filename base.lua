@@ -19,6 +19,7 @@ end
 
 function Base:draw()
 	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setLineWidth(1)
 	love.graphics.circle("line", self.x*Scale + Scale/2, self.y*Scale + Scale/2, 0.4*Scale)
 
 	self:drawStats()
@@ -28,7 +29,7 @@ function Base:drawStats()
 	if self.x ~= Cursor.x
 	or self.y ~= Cursor.y
 	or Scale < 16 then
-		return -1
+		return
 	end
 
 	love.graphics.setColor(1, 1, 1, 0.6)

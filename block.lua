@@ -17,6 +17,7 @@ end
 
 function Block:draw()
 	love.graphics.setColor(0.2, 0.8, 0.2, 1)
+	love.graphics.setLineWidth(1)
 	love.graphics.draw(self.tileset, self.quads[self.type], self.x*Scale, self.y*Scale, 0, Scale/32, Scale/32)
 
 	self:drawStats()
@@ -26,7 +27,7 @@ function Block:drawStats()
 	if self.x ~= Cursor.x
 	or self.y ~= Cursor.y
 	or Scale < 16 then
-		return -1
+		return
 	end
 
 	love.graphics.setColor(1, 1, 1, 0.6)
