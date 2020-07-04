@@ -53,6 +53,7 @@ function Brain:draw()
 	love.graphics.ellipse("fill", self.x*Scale + Scale/2, self.y*Scale + 0.25*Scale, 0.14*Scale, 0.18*Scale)
 
 	self:drawStats()
+	self:drawPath()
 end
 
 function Brain:drawStats()
@@ -76,6 +77,26 @@ function Brain:drawStats()
 	end
 	if self.path ~= nil then
 		love.graphics.print("Path: "..#self.path, self.x*Scale + Scale, self.y*Scale + 12*8)
+	end
+end
+
+function Brain:drawPath()
+	if self.path == nil
+	or #self.path < 2 then
+		return -1
+	end
+
+	local x = self.path[#self.path].x*Scale + Scale/2
+	local y = self.path[#self.path].y*Scale + Scale/2
+	love.graphics.setColor(0.5, 1, 0.5, 0.5)
+	love.graphics.circle("line", x, y, Scale/2)
+
+	for i=2,#self.path do
+		local x1 = self.path[i-1].x*Scale + Scale/2
+		local y1 = self.path[i-1].y*Scale + Scale/2
+		local x2 = self.path[i].x*Scale + Scale/2
+		local y2 = self.path[i].y*Scale + Scale/2
+		love.graphics.line(x1, y1, x2, y2)
 	end
 end
 

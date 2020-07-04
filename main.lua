@@ -176,7 +176,6 @@ function love.draw()
 	for _,v in ipairs(Entities) do
 		if v.z == Level then
 			v:draw()
-			DrawPath(v.path)
 		end
 	end
 
@@ -223,26 +222,5 @@ function DrawMenu(list)
 	love.graphics.setColor(1, 1, 1, 1)
 	for i,v in ipairs(list) do
 		love.graphics.print(v, menu.x + 2, menu.y + lineHeight*(#list - i))
-	end
-end
-
-function DrawPath(path)
-	if path == nil then
-		return -1
-	end
-
-	if #path > 1 then
-		local x = path[#path].x*Scale + Scale/2
-		local y = path[#path].y*Scale + Scale/2
-		love.graphics.setColor(0.5, 1, 0.5, 0.5)
-		love.graphics.circle("line", x, y, Scale/2)
-
-		for i=2,#path do
-			local x1 = path[i-1].x*Scale + Scale/2
-			local y1 = path[i-1].y*Scale + Scale/2
-			local x2 = path[i].x*Scale + Scale/2
-			local y2 = path[i].y*Scale + Scale/2
-			love.graphics.line(x1, y1, x2, y2)
-		end
 	end
 end
