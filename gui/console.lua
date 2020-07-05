@@ -1,6 +1,14 @@
 Console = Object:extend()
 
 function Console:new()
+	local x, y, w, h = love.window.getSafeArea()
+
+	self.lineHeight = 12
+
+	self.x = 8
+	self.y = h - self.lineHeight*Log.limit
+	self.w = w - 16
+	self.h = Log.limit*self.lineHeight + 4
 	self.visible = true
 end
 
@@ -19,25 +27,19 @@ function Console:draw()
 		return
 	end
 
-	local lineHeight = 12
-	local x, y, w, h = love.window.getSafeArea()
-	local menu = {
-		x1 = 4,
-		y1 = h - lineHeight*#Log.list,
-		x2 = w - 8,
-		y2 = h - 4
-	}
-
-	love.graphics.setColor(0, 0, 0, 0.7)
-	love.graphics.setLineWidth(1)
-	love.graphics.rectangle("fill", menu.x1, menu.y1, menu.x2, menu.y2)
+	love.graphics.setColor(0, 0, 0, 0.6)
+	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setLineWidth(1)
-	love.graphics.rectangle("line", menu.x1, menu.y1, menu.x2, menu.y2)
+	love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 
-	love.graphics.setColor(1, 1, 1, 1)
-	for i, v in ipairs(Log.list) do
-		love.graphics.print(v, menu.x1 + 2, menu.y1 + lineHeight*(#Log.list - i))
+	for i, line in ipairs(Log.list) do
+		if line[2] == nil then
+			love.graphics.setColor(1, 1, 1, 1)
+		else
+			love.graphics.setColor(line[2])
+		end
+		love.graphics.print(line[1], self.x + 3, self.y + self.lineHeight*(Log.limit - i))
 	end
 end

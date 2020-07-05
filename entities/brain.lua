@@ -34,7 +34,7 @@ function Brain:update(dt)
 
 	local err = self:processTask()
 	if err then
-		Log:append("ERROR: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. err)
+		Log:error(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. err)
 	end
 end
 
@@ -110,7 +110,7 @@ function Brain:takeTask()
 		if v.contractor == self.id
 		and v.category == "INTEL" then
 			table.insert(self.tasks, table.remove(Queue, i))
-			Log:append("INFO: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
+			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
 		end
 	end
 end
@@ -149,7 +149,7 @@ function Brain:processTask()
 		end
 	elseif task.code == "SATIATE" then
 		self.hunger = self.hunger - 20
-		Log:append("[INFO] " .. self.type .. " says: \"Hunger reduced for 20\"")
+		Log:information(self.type .. " says: \"Hunger reduced for 20\"")
 	else
 		return "cannot hanlde a task \"" .. task.code .. "\""
 	end

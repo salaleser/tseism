@@ -33,7 +33,7 @@ function Motor:update(dt)
 
 	local err = self:processTask()
 	if err then
-		Log:append("ERROR: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. err)
+		Scale("ERROR: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. err)
 	end
 end
 
@@ -79,7 +79,7 @@ function Motor:takeTask()
 		if v.contractor == self.id
 		and v.category == "MOTOR" then
 			table.insert(self.tasks, table.remove(Queue, i))
-			Log:append("INFO: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
+			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
 		end
 	end
 end

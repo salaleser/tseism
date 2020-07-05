@@ -33,7 +33,7 @@ function Head:update(dt)
 
 	local err = self:processTask()
 	if err then
-		Log:append("ERROR: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. err)
+		Log:error(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. err)
 	end
 end
 
@@ -54,7 +54,7 @@ function Head:takeTask()
 		if v.contractor == self.id
 		and v.category == "HEAD" then
 			table.insert(self.tasks, table.remove(Queue, i))
-			Log:append("INFO: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
+			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
 		end
 	end
 end
@@ -67,7 +67,7 @@ function Head:processTask()
 	local task = table.remove(self.tasks)
 
 	if task.code == "EAT" then
-		local cost = 5
+		local cost = 1
 		if self.fatigue + cost > cost then
 			return
 		end

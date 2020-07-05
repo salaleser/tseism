@@ -37,7 +37,7 @@ function Seed:draw()
 end
 
 function Seed:say(message)
-	Log:append("[INFO] " .. self.type .. " says: \"" .. message .. "\"")
+	Log:information(self.type .. " says: \"" .. message .. "\"")
 
 	-- love.graphics.setColor(self.color)
 	-- love.graphics.setLineWidth(1)

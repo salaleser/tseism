@@ -215,8 +215,8 @@ function love.draw()
 
 	-- GUI --
 	Cursor:draw()
-	Console:draw()
 	Menu:draw()
+	Console:draw()
 	Minimap:draw()
 	Pathfinder:draw()
 	Overlay:draw()
