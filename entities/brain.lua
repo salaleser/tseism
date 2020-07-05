@@ -148,7 +148,8 @@ function Brain:processTask()
 			end
 		end
 	elseif task.code == "SATIATE" then
-		self.hunger = self.hunger + 20
+		self.hunger = self.hunger - 20
+		Log:append("[INFO] " .. self.type .. " says: \"Hunger reduced for 20\"")
 	else
 		return "cannot hanlde a task \"" .. task.code .. "\""
 	end

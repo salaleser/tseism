@@ -21,6 +21,7 @@ function Seed:update(dt)
 
 	if self.health ~= self.lastHealth then
 		self:say("Health changed for " .. (self.health - self.lastHealth))
+		self.lastHealth = self.health
 	end
 end
 

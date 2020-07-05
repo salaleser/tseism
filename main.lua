@@ -14,6 +14,7 @@ function love.load()
 	require "entities/seed"
 	require "gui/console"
 	require "gui/cursor"
+	require "gui/help"
 	require "gui/overlay"
 	require "gui/menu"
 	require "gui/minimap"
@@ -41,6 +42,7 @@ function love.load()
 	Log = Log()
 	Console = Console()
 	Menu = Menu()
+	Help = Help()
 	Minimap = Minimap()
 	Overlay = Overlay()
 
@@ -132,6 +134,7 @@ end
 function love.keypressed(key, scancode, isrepeat)
 	Cursor:keypressed(key, scancode, isrepeat)
 	Console:keypressed(key, scancode, isrepeat)
+	Help:keypressed(key, scancode, isrepeat)
 	Menu:keypressed(key, scancode, isrepeat)
 	Minimap:keypressed(key, scancode, isrepeat)
 	Pathfinder:keypressed(key, scancode, isrepeat)
@@ -217,6 +220,7 @@ function love.draw()
 	Minimap:draw()
 	Pathfinder:draw()
 	Overlay:draw()
+	Help:draw()
 
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setLineWidth(1)

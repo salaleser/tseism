@@ -8,7 +8,6 @@ function Menu:new()
 	self.w = w - h
 	self.h = h
 	self.visible = true
-	self.helpVisible = false
 	self.list = {}
 end
 
@@ -18,14 +17,6 @@ function Menu:keypressed(key, scancode, isrepeat)
 			self.visible = false
 		else
 			self.visible = true
-		end
-	end
-
-	if key == "h" then
-		if self.helpVisible then
-			self.helpVisible = false
-		else
-			self.helpVisible = true
 		end
 	end
 end
@@ -46,40 +37,43 @@ function Menu:draw()
 
 	for _, v in ipairs(self.list) do
 		if v.type ~= nil then
-			table.insert(lines, {"["..v.type.."]", v.color})
+			table.insert(lines, {"[" .. v.type .. "]", v.color})
 		end
 		if v.x ~= nil
 		and v.y ~= nil
 		and v.z ~= nil then
-			table.insert(lines, {"  Position: "..v.x.."•"..v.y.."•"..v.z, v.color})
+			table.insert(lines, {"  Position: " .. v.x .. "•" .. v.y .. "•" .. v.z, v.color})
 		end
 		if v.id ~= nil then
-			table.insert(lines, {"  ID: "..v.id, v.color})
+			table.insert(lines, {"  ID: " .. v.id, v.color})
 		end
 		if v.health ~= nil then
-			table.insert(lines, {"  Health: "..v.health, v.color})
+			table.insert(lines, {"  Health: " .. v.health, v.color})
 		end
 		if v.fatigue ~= nil then
-			table.insert(lines, {"  Fatigue: "..v.fatigue, v.color})
+			table.insert(lines, {"  Fatigue: " .. v.fatigue, v.color})
 		end
 		if v.hunger ~= nil then
-			table.insert(lines, {"  Hunger: "..v.hunger, v.color})
+			table.insert(lines, {"  Hunger: " .. v.hunger, v.color})
 		end
 		if v.force ~= nil then
-			table.insert(lines, {"  Force: "..v.force, v.color})
+			table.insert(lines, {"  Force: " .. v.force, v.color})
 		end
 		if v.speed ~= nil then
-			table.insert(lines, {"  Speed: "..v.speed, v.color})
+			table.insert(lines, {"  Speed: " .. v.speed, v.color})
 		end
-		if v.task ~= nil then
+		if v.tasks ~= nil then
 			local target = ""
-			if v.task.x ~= nil
-			and v.task.y ~= nil then
-				target = v.task.x..","..v.task.y
-			elseif v.task.target ~= nil then
-				target = v.task.target.x..","..v.task.target.y
+			table.insert(lines, {"  Tasks: ", v.color})
+			for i, task in ipairs(v.tasks) do
+				if task.x ~= nil
+				and task.y ~= nil then
+					target = task.x .. "," .. task.y
+				elseif task.target ~= nil then
+					target = task.target.x .. "," .. task.target.y
+				end
+				table.insert(lines, {"    " .. i .. ". " .. v.task.category .. "." .. v.task.code .. "(" .. target .. ")", v.color})
 			end
-			table.insert(lines, {"  Task: "..v.task.category.."."..v.task.code.."("..target..")", v.color})
 		end
 	end
 
@@ -89,23 +83,11 @@ function Menu:draw()
 		local target = ""
 		if v.x ~= nil
 		and v.y ~= nil then
-			target = v.x..","..v.y
+			target = v.x .. "," .. v.y
 		elseif v.target ~= nil then
-			target = v.target.x..","..v.target.y
+			target = v.target.x .. "," .. v.target.y
 		end
-		table.insert(lines, {i..": "..v.category.."."..v.code.."("..target..")", queueColor})
-	end
-
-	if self.helpVisible then
-		table.insert(lines, {"[Help]"})
-		table.insert(lines, {"  Keys:"})
-		table.insert(lines, {"    a, z — change Z-level"})
-		table.insert(lines, {"    0, -, =, [, ] — change scale"})
-		table.insert(lines, {"    tab — menu"})
-		table.insert(lines, {"    m — minimap"})
-		table.insert(lines, {"    ~ — console"})
-	else
-		table.insert(lines, {"[Help] (...) (press H to expand)"})
+		table.insert(lines, {i .. ": " .. v.category .. "." .. v.code .. "(" .. target .. ")", queueColor})
 	end
 
 	local lineHeight = 12

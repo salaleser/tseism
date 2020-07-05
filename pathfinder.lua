@@ -17,7 +17,7 @@ function Pathfinder:new(w, h)
 		table.insert(self.map, row)
 	end
 
-	pajarito.init(self.map, w, h, false)
+	pajarito.init(self.map, w, h, true)
 
 	Minimap.map = self.map
 end
