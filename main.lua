@@ -1,36 +1,25 @@
 function love.load()
-
-	-- System
 	Object = require "libs/classic"
-	require "util"
-	require "log"
-	require "queue"
-	require "task"
 
-	-- GUI
-	require "cursor"
-	require "console"
-	require "menu"
-
-	-- World
-	require "cell"
-
-	-- Items
-	require "seed"
-
-	-- Ships
-	require "block"
-	require "ships"
-
-	-- Creatures
-	require "base"
-	require "head"
-	require "manipulator"
-	require "brain"
-	require "motor"
+	require "data/ships"
+	require "engine/log"
+	require "engine/queue"
+	require "engine/task"
+	require "entities/base"
+	require "entities/block"
+	require "entities/brain"
+	require "entities/head"
+	require "entities/manipulator"
+	require "entities/motor"
+	require "entities/seed"
+	require "gui/console"
+	require "gui/cursor"
+	require "gui/menu"
+	require "misc/util"
+	require "world/cell"
 
 	love.graphics.setLineStyle("rough")
-	local font = love.graphics.newFont("18432.ttf", 16)
+	local font = love.graphics.newFont("fonts/18432.ttf", 16)
 	love.graphics.setFont(font)
 
 	StartTime = love.timer.getTime()

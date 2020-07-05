@@ -14,7 +14,6 @@ function Brain:new(base, parent)
 	self.parent = parent
 	self.task = nil
 	self.path = nil
-	self.fieldOfView = {}
 	self.fovLimit = 6
 
 	self.hunger = 8.0
@@ -35,13 +34,11 @@ function Brain:update(dt)
 
 	local err = self:processTask()
 	if err then
-		Log:append("ERROR: "..err.." ("..self.id..") ["..self.x.."•"..self.y.."•"..self.z.."]: ")
+		Log:append("ERROR: " .. err .. " (" .. self.id .. ") [" .. self.x .. "•" .. self.y .. "•" .. self.z .. "]: ")
 	end
 end
 
 function Brain:draw()
-
-	-- draw brain
 	local color = { 0.8, 0.5, 0.7, 0.5 }
 	if self.task ~= nil then
 		color = self.color
@@ -138,10 +135,11 @@ function Brain:processTask()
 	if self.task.code == "EAT" then
 		local food = self:findFood()
 		if #food == 0 then
-			return self.type..".processTask: there is no food"
+			return self.type.. ".processTask: there is no food"
 		end
 
 		local target = food[1]
+		Log:append("target="..#food.."/"..target.x.."•"..target.y.."•"..target.z)
 
 		-- make orders
 		if self.x == target.x
@@ -174,8 +172,8 @@ function Brain:findFood()
 	for i = x1, x2 do
 		for j = y1, y2 do
 			for _, v in pairs(Seeds) do
-				if v.x == j
-				and v.y == i
+				if v.x == i
+				and v.y == j
 				and v.z == self.z then
 					table.insert(food, v)
 				end

@@ -31,7 +31,10 @@ function Motor:update(dt)
 
 	self:takeTask()
 
-	self:processTask()
+	local err = self:processTask()
+	if err then
+		Log:append("ERROR: "..err.." ("..self.id..") ["..self.x.."•"..self.y.."•"..self.z.."]: ")
+	end
 end
 
 function Motor:draw()

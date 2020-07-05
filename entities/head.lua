@@ -29,7 +29,10 @@ function Head:update(dt)
 
 	self:takeTask()
 
-	self:processTask()
+	local err = self:processTask()
+	if err then
+		Log:append("ERROR: "..err.." ("..self.id..") ["..self.x.."•"..self.y.."•"..self.z.."]: ")
+	end
 end
 
 function Head:draw()
@@ -56,7 +59,7 @@ end
 
 function Head:processTask()
 	if self.task == nil then
-		return -1
+		return
 	end
 
 	if self.task.code == "EAT" then
