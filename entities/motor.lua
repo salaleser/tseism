@@ -12,7 +12,7 @@ function Motor:new(base)
 	self.base = base
 	self.task = nil
 
-	self.health = 100.0
+	self.health = 100
 	self.fatigue = 0
 	self.speed = 10
 end

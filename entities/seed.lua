@@ -9,7 +9,7 @@ function Seed:new(x, y, z)
 	self.y = y
 	self.z = z
 
-	self.health = 100.0
+	self.health = 100
 end
 
 function Seed:update(dt)

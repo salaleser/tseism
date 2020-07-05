@@ -11,8 +11,8 @@ function Manipulator:new(base)
 	self.y = base.y
 	self.z = base.z
 
-	self.health = 100.0
-	self.fatigue = 0.0
+	self.health = 100
+	self.fatigue = 0
 end
 
 function Manipulator:update(dt)

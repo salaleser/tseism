@@ -16,7 +16,7 @@ function Brain:new(base, parent)
 	self.path = nil
 	self.fovLimit = 6
 
-	self.hunger = 8.0
+	self.hunger = 8
 end
 
 function Brain:update(dt)
