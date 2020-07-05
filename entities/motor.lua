@@ -10,7 +10,7 @@ function Motor:new(base)
 	self.z = base.z
 
 	self.base = base
-	self.task = nil
+	self.tasks = {}
 
 	self.health = 100
 	self.fatigue = 0
@@ -78,27 +78,30 @@ function Motor:takeTask()
 	for i, v in ipairs(Queue) do
 		if v.contractor == self.id
 		and v.category == "MOTOR" then
-			self.task = v
-			table.remove(Queue, i)
+			table.insert(self.tasks, table.remove(Queue, i))
+			Log:append("INFO: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
 		end
 	end
 end
 
 function Motor:processTask()
-	if self.task == nil then
+	if #self.tasks == 0 then
 		return
 	end
 
-	if self.task.code == "MOVE" then
+	local task = table.remove(self.tasks)
+
+	if task.code == "MOVE" then
 		local cost = 5
 		if self.fatigue + cost > cost then
-			return "tired"
+			return
 		end
 
-		self.base.x = self.task.x
-		self.base.y = self.task.y
+		self.base.x = task.x
+		self.base.y = task.y
 
 		self.fatigue = self.fatigue + cost
-		self.task = nil
+	else
+		return "cannot hanlde a task \"" .. task.code .. "\""
 	end
 end

@@ -26,25 +26,20 @@ function Minimap:draw()
 		return
 	end
 
-	love.graphics.setColor(0, 0, 0, 0.7)
-	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
-
 	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.setLineWidth(3)
+	love.graphics.setLineWidth(1)
 	love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 
-	local lines = {}
-
-	for j, line in pairs(lines) do
-		if line[2] ~= nil then
-			love.graphics.setColor(line[2])
-		else
-			love.graphics.setColor(1, 1, 1, 1)
+	local blocked = {0.8, 0.8, 0.8, 1}
+	local passable = {0, 0, 0, 1}
+	for i = 1, WorldSize.width do
+		for j = 1, WorldSize.height do
+			if self.map[i][j] == 0 then
+				love.graphics.setColor(blocked)
+			elseif self.map[i][j] == 1 then
+				love.graphics.setColor(passable)
+			end
+			love.graphics.rectangle("fill", j - 1 + self.x, i - 1 + self.y, 1, 1)
 		end
-		-- love.graphics.print(line[1], minimap.x1 + 3, minimap.y1 + minimap.y1 + (j - 1)*lineHeight)
 	end
-end
-
-function Minimap:clear()
-	self.map = {}
 end

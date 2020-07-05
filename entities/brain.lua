@@ -1,5 +1,4 @@
 Brain = Object:extend()
-local pajarito = require "libs/pajarito"
 
 function Brain:new(base, parent)
 	self.id = base.id
@@ -12,10 +11,10 @@ function Brain:new(base, parent)
 
 	self.base = base
 	self.parent = parent
-	self.task = nil
-	self.path = nil
-	self.map = {}
-	self.fovLimit = 6
+	self.tasks = {}
+	self.path = {}
+	self.eatables = {}
+	self.fovLimit = 10
 
 	self.hunger = 8
 end
@@ -41,7 +40,7 @@ end
 
 function Brain:draw()
 	local color = {0.8, 0.5, 0.7, 0.5}
-	if self.task ~= nil then
+	if #self.tasks > 0 then
 		color = self.color
 	end
 	love.graphics.setColor(color)
@@ -57,7 +56,6 @@ function Brain:draw()
 	self:drawTarget()
 	self:drawPath()
 	self:drawFov()
-	self:drawMap()
 end
 
 function Brain:drawTarget()
@@ -99,27 +97,9 @@ function Brain:drawFov()
 	end
 
 	love.graphics.setColor(0, 1, 0, 0.15)
-	local fovX1 = self.x - self.fovLimit
-	local fovY1 = self.x + self.fovLimit
-	local fovX2 = self.y - self.fovLimit
-	local fovY2 = self.y + self.fovLimit
-	for i = fovX1, fovY1 do
-		for j = fovX2, fovY2 do
-			love.graphics.rectangle("fill", i*Scale, j*Scale, Scale, Scale)
-		end
-	end
-end
-
-function Brain:drawMap()
-	local blocked = {1, 0, 0, 0.3}
-	local passable = {0, 1, 0, 0.3}
-	for i, row in ipairs(self.map) do
-		for j, v in ipairs(row) do
-			if v == 0 then
-				love.graphics.setColor(passable)
-			elseif v == 1 then
-				love.graphics.setColor(blocked)
-			end
+	local r = self.fovLimit
+	for i = self.x - r, self.x + r do
+		for j = self.y - r, self.y + r do
 			love.graphics.rectangle("fill", i*Scale, j*Scale, Scale, Scale)
 		end
 	end
@@ -129,25 +109,28 @@ function Brain:takeTask()
 	for i,v in ipairs(Queue) do
 		if v.contractor == self.id
 		and v.category == "INTEL" then
-			self.task = v
-			table.remove(Queue, i)
+			table.insert(self.tasks, table.remove(Queue, i))
+			Log:append("INFO: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
 		end
 	end
 end
 
 function Brain:processTask()
-	if self.task == nil then
+	if #self.tasks == 0 then
 		return
 	end
 
-	if self.task.code == "GET_FOOD" then
-		local food = self:findFood()
-		if #food == 0 then
-			return "there is no food"
+	local task = table.remove(self.tasks)
+
+	if task.code == "GET_FOOD" then
+		if #self.eatables == 0 then
+			self.eatables = self:findFood()
+			if #self.eatables == 0 then
+				return "there is no food"
+			end
 		end
 
-		local target = food[1]
-		Log:append("DEBUG: target=" .. #food .. " {" .. target.x.. "," .. target.y .. "," .. target.z .. "}")
+		local target = self.eatables[1]
 
 		-- make orders
 		if self.x == target.x
@@ -157,31 +140,27 @@ function Brain:processTask()
 			Queue:add(Task(self.id, "HEAD", "EAT", nil, nil, target))
 		else
 			-- move at food position
-			local map = self:scanFovForObstacles()
-
-			pajarito.init(map, self.fovLimit*2, self.fovLimit*2, true)
-			self.path = pajarito.pathfinder(self.x, self.y, target.x, target.y)
+			self.path = Pathfinder:build(self.x, self.y, target.x, target.y)
 			if #self.path > 1 then
 				Queue:add(Task(self.id, "MOTOR", "MOVE", self.path[2].x, self.path[2].y, nil))
 			else
 				return "cannot find passable route for {" .. target.x .. "," .. target.y .. "," .. target.z .. "}"
 			end
 		end
-	elseif self.task.code == "SATIATE" then
-		self.hunger = self.hunger + 5
+	elseif task.code == "SATIATE" then
+		self.hunger = self.hunger + 20
+	else
+		return "cannot hanlde a task \"" .. task.code .. "\""
 	end
 end
 
--- try find eatable entity
+-- try to find an eatable entity
 function Brain:findFood()
 	local food = {}
 
-	local x1 = self.x - self.fovLimit
-	local y1 = self.y - self.fovLimit
-	local x2 = self.x + self.fovLimit
-	local y2 = self.y + self.fovLimit
-	for i = x1, x2 do
-		for j = y1, y2 do
+	local r = self.fovLimit
+	for i = self.x - r, self.x + r do
+		for j = self.y - r, self.y + r do
 			for _, v in pairs(Seeds) do
 				if v.x == i
 				and v.y == j
@@ -193,35 +172,4 @@ function Brain:findFood()
 	end
 
 	return food
-end
-
-function Brain:scanFovForObstacles()
-	local obstaclesMap = {}
-
-	local x1 = self.x - self.fovLimit
-	local y1 = self.y - self.fovLimit
-	local x2 = self.x + self.fovLimit
-	local y2 = self.y + self.fovLimit
-	for i = x1, x2 do
-		for j = y1, y2 do
-			if Brain.hasBlock(j, i) then
-				table.insert(obstaclesMap, 0)
-			else
-				table.insert(obstaclesMap, 1)
-			end
-		end
-	end
-
-	return obstaclesMap
-end
-
-function Brain.hasBlock(x, y)
-	for _, v in pairs(Blocks) do
-		if v.x == x
-		and v.y == y then
-			return true
-		end
-	end
-
-	return false
 end

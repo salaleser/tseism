@@ -10,6 +10,8 @@ function Head:new(base)
 	self.y = base.y
 	self.z = base.z
 
+	self.tasks = {}
+
 	self.health = 100
 	self.fatigue = 0
 	self.force = 2
@@ -51,28 +53,30 @@ function Head:takeTask()
 	for i, v in ipairs(Queue) do
 		if v.contractor == self.id
 		and v.category == "HEAD" then
-			self.task = v
-			table.remove(Queue, i)
+			table.insert(self.tasks, table.remove(Queue, i))
+			Log:append("INFO: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
 		end
 	end
 end
 
 function Head:processTask()
-	if self.task == nil then
+	if #self.tasks == 0 then
 		return
 	end
 
-	if self.task.code == "EAT" then
+	local task = table.remove(self.tasks)
+
+	if task.code == "EAT" then
 		local cost = 5
 		if self.fatigue + cost > cost then
-			return "tired"
+			return
 		end
 
-		self.task.target.health = self.task.target.health - 20 -- directly!
-		self.task.target:say("-20")
+		task.target.health = task.target.health - 20 -- directly!
 		Queue:add(Task(self.id, "INTEL", "SATIATE"))
 
 		self.fatigue = self.fatigue + cost
-		self.task = nil
+	else
+		return "cannot hanlde a task \"" .. task.code .. "\""
 	end
 end

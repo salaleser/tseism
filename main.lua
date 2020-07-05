@@ -14,10 +14,13 @@ function love.load()
 	require "entities/seed"
 	require "gui/console"
 	require "gui/cursor"
+	require "gui/overlay"
 	require "gui/menu"
 	require "gui/minimap"
 	require "misc/util"
 	require "world/cell"
+
+	require "pathfinder"
 
 	love.graphics.setLineStyle("rough")
 	local font = love.graphics.newFont("fonts/18432.ttf", 16)
@@ -28,8 +31,8 @@ function love.load()
 	Scale = 32
 	ScaleLimit = 4096
 	WorldSize = {
-		width = 128,
-		height = 128,
+		width = 64,
+		height = 64,
 		depth = 8
 	}
 	Level = WorldSize.depth/2
@@ -39,11 +42,12 @@ function love.load()
 	Console = Console()
 	Menu = Menu()
 	Minimap = Minimap()
+	Overlay = Overlay()
 
 	Cells = {}
-	for i = 0,WorldSize.width do
-		for j = 0,WorldSize.height do
-			for k = 0,WorldSize.depth do
+	for i = 0, WorldSize.width do
+		for j = 0, WorldSize.height do
+			for k = 0, WorldSize.depth do
 				table.insert(Cells, Cell(j, i, k))
 			end
 		end
@@ -51,10 +55,23 @@ function love.load()
 
 	Block:init()
 	Blocks = {}
+
+	local ship1X = 1
+	local ship1Y = 1
 	for i, row in ipairs(Ship1) do
 		for j, kind in ipairs(row) do
 			if kind ~= 0 then
-				table.insert(Blocks, Block(j, i, 4, kind))
+				table.insert(Blocks, Block(j + ship1X, i + ship1Y, 4, kind))
+			end
+		end
+	end
+
+	local junk1X = 16
+	local junk1Y = 12
+	for i, row in ipairs(Junk1) do
+		for j, kind in ipairs(row) do
+			if kind ~= 0 then
+				table.insert(Blocks, Block(j + junk1X, i + junk1Y, 4, kind))
 			end
 		end
 	end
@@ -73,7 +90,7 @@ function love.load()
 	-- build Entities
 	Entities = {}
 
-	local base = Base(12, 12, 4)
+	local base = Base(4, 4, 4)
 	table.insert(Entities, base)
 
 	local motor = Motor(base)
@@ -87,6 +104,8 @@ function love.load()
 
 	local brain = Brain(base, head)
 	table.insert(Entities, brain)
+
+	Pathfinder = Pathfinder(WorldSize.width, WorldSize.height)
 end
 
 function love.update(dt)
@@ -115,6 +134,8 @@ function love.keypressed(key, scancode, isrepeat)
 	Console:keypressed(key, scancode, isrepeat)
 	Menu:keypressed(key, scancode, isrepeat)
 	Minimap:keypressed(key, scancode, isrepeat)
+	Pathfinder:keypressed(key, scancode, isrepeat)
+	Overlay:keypressed(key, scancode, isrepeat)
 
 	if key == "z" then
 		if Level > 0 then
@@ -194,6 +215,8 @@ function love.draw()
 	Console:draw()
 	Menu:draw()
 	Minimap:draw()
+	Pathfinder:draw()
+	Overlay:draw()
 
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setLineWidth(1)

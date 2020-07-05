@@ -3,19 +3,24 @@ Seed = Object:extend()
 function Seed:new(x, y, z)
 	self.id = NewGuid()
 	self.type = "Seed"
-	self.color = { 1, 0.78, 0.15, 1 }
+	self.color = {1, 0.78, 0.15, 1}
 
 	self.x = x
 	self.y = y
 	self.z = z
 
 	self.health = 100
+	self.lastHealth = self.health
 end
 
 function Seed:update(dt)
 	if self.health <= 0 then
 		self:say("I'm dead!")
 		self:destroy()
+	end
+
+	if self.health ~= self.lastHealth then
+		self:say("Health changed for " .. (self.health - self.lastHealth))
 	end
 end
 
@@ -31,7 +36,7 @@ function Seed:draw()
 end
 
 function Seed:say(message)
-	Log.append("[INFO] " .. self.type .. " says: \"" .. message .. "\"")
+	Log:append("[INFO] " .. self.type .. " says: \"" .. message .. "\"")
 
 	-- love.graphics.setColor(self.color)
 	-- love.graphics.setLineWidth(1)
