@@ -31,7 +31,7 @@ function Head:update(dt)
 
 	local err = self:processTask()
 	if err then
-		Log:append("ERROR: "..err.." ("..self.id..") ["..self.x.."•"..self.y.."•"..self.z.."]: ")
+		Log:append("ERROR: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. err)
 	end
 end
 
@@ -65,10 +65,11 @@ function Head:processTask()
 	if self.task.code == "EAT" then
 		local cost = 5
 		if self.fatigue + cost > cost then
-			return -10
+			return "tired"
 		end
 
-		self.task.target.health = self.task.target.health - 20
+		self.task.target.health = self.task.target.health - 20 -- directly!
+		self.task.target:say("-20")
 		Queue:add(Task(self.id, "INTEL", "SATIATE"))
 
 		self.fatigue = self.fatigue + cost

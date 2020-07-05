@@ -33,7 +33,7 @@ function Motor:update(dt)
 
 	local err = self:processTask()
 	if err then
-		Log:append("ERROR: "..err.." ("..self.id..") ["..self.x.."•"..self.y.."•"..self.z.."]: ")
+		Log:append("ERROR: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. err)
 	end
 end
 
@@ -58,6 +58,20 @@ function Motor:draw()
 	and Cursor.selectedZ == self.z then
 		Menu:append(self)
 	end
+
+	self:drawTarget()
+end
+
+function Motor:drawTarget()
+	if self.task == nil
+	or self.task.x == nil
+	or self.task.y == nil then
+		return
+	end
+
+	love.graphics.setColor(1, 0.5, 0.5, 0.5)
+	love.graphics.setLineWidth(1)
+	love.graphics.circle("line", self.task.x*Scale + Scale/2, self.task.y*Scale + Scale/2, 0.45*Scale)
 end
 
 function Motor:takeTask()
@@ -78,7 +92,7 @@ function Motor:processTask()
 	if self.task.code == "MOVE" then
 		local cost = 5
 		if self.fatigue + cost > cost then
-			return -10
+			return "tired"
 		end
 
 		self.base.x = self.task.x

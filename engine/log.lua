@@ -11,7 +11,7 @@ function Log:update(dt)
 end
 
 function Log:append(line)
-	line = "["..(math.ceil(love.timer.getTime())).."] "..line
+	line = "[" .. (math.ceil(love.timer.getTime() - StartTime)).. "] " .. line
 
 	for _, v in ipairs(self.list) do
 		if v == line then

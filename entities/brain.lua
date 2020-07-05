@@ -14,6 +14,7 @@ function Brain:new(base, parent)
 	self.parent = parent
 	self.task = nil
 	self.path = nil
+	self.map = {}
 	self.fovLimit = 6
 
 	self.hunger = 8
@@ -27,19 +28,19 @@ function Brain:update(dt)
 	self.hunger = self.hunger + 2 * dt
 
 	if self.hunger > 10 then
-		Queue:add(Task(self.id, "INTEL", "EAT", nil, nil))
+		Queue:add(Task(self.id, "INTEL", "GET_FOOD", nil, nil))
 	end
 
 	self:takeTask()
 
 	local err = self:processTask()
 	if err then
-		Log:append("ERROR: " .. err .. " (" .. self.id .. ") [" .. self.x .. "•" .. self.y .. "•" .. self.z .. "]: ")
+		Log:append("ERROR: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. err)
 	end
 end
 
 function Brain:draw()
-	local color = { 0.8, 0.5, 0.7, 0.5 }
+	local color = {0.8, 0.5, 0.7, 0.5}
 	if self.task ~= nil then
 		color = self.color
 	end
@@ -50,32 +51,24 @@ function Brain:draw()
 	if Cursor.selectedX == self.x
 	and Cursor.selectedY == self.y
 	and Cursor.selectedZ == self.z then
-		Menu:append(self)
 	end
+	Menu:append(self) -->FIXME
 
 	self:drawTarget()
 	self:drawPath()
 	self:drawFov()
+	self:drawMap()
 end
 
 function Brain:drawTarget()
 	if self.task == nil
-	or (self.task.x == nil
-	and self.task.y == nil
-	and self.task.target == nil) then
+	or self.task.target == nil then
 		return
 	end
 
-	local x = self.task.x
-	local y = self.task.y
-	if x == nil
-	or y == nil then
-		x = self.task.target.x
-		y = self.task.target.y
-	end
-
 	love.graphics.setColor(1, 0.5, 0.5, 0.5)
-	love.graphics.circle("line", x, y, Scale/2)
+	love.graphics.setLineWidth(1)
+	love.graphics.circle("line", self.task.target.x*Scale + Scale/2, self.task.target.y*Scale + Scale/2, 0.4*Scale)
 end
 
 function Brain:drawPath()
@@ -84,9 +77,9 @@ function Brain:drawPath()
 		return
 	end
 
+	love.graphics.setColor(0.5, 1, 0.5, 0.5)
 	local x = self.path[#self.path].x*Scale + Scale/2
 	local y = self.path[#self.path].y*Scale + Scale/2
-	love.graphics.setColor(0.5, 1, 0.5, 0.5)
 	love.graphics.circle("line", x, y, Scale/2)
 
 	for i = 2, #self.path do
@@ -117,6 +110,21 @@ function Brain:drawFov()
 	end
 end
 
+function Brain:drawMap()
+	local blocked = {1, 0, 0, 0.3}
+	local passable = {0, 1, 0, 0.3}
+	for i, row in ipairs(self.map) do
+		for j, v in ipairs(row) do
+			if v == 0 then
+				love.graphics.setColor(passable)
+			elseif v == 1 then
+				love.graphics.setColor(blocked)
+			end
+			love.graphics.rectangle("fill", i*Scale, j*Scale, Scale, Scale)
+		end
+	end
+end
+
 function Brain:takeTask()
 	for i,v in ipairs(Queue) do
 		if v.contractor == self.id
@@ -132,14 +140,14 @@ function Brain:processTask()
 		return
 	end
 
-	if self.task.code == "EAT" then
+	if self.task.code == "GET_FOOD" then
 		local food = self:findFood()
 		if #food == 0 then
-			return self.type.. ".processTask: there is no food"
+			return "there is no food"
 		end
 
 		local target = food[1]
-		Log:append("target="..#food.."/"..target.x.."•"..target.y.."•"..target.z)
+		Log:append("DEBUG: target=" .. #food .. " {" .. target.x.. "," .. target.y .. "," .. target.z .. "}")
 
 		-- make orders
 		if self.x == target.x
@@ -150,10 +158,13 @@ function Brain:processTask()
 		else
 			-- move at food position
 			local map = self:scanFovForObstacles()
+
 			pajarito.init(map, self.fovLimit*2, self.fovLimit*2, true)
 			self.path = pajarito.pathfinder(self.x, self.y, target.x, target.y)
 			if #self.path > 1 then
 				Queue:add(Task(self.id, "MOTOR", "MOVE", self.path[2].x, self.path[2].y, nil))
+			else
+				return "cannot find passable route for {" .. target.x .. "," .. target.y .. "," .. target.z .. "}"
 			end
 		end
 	elseif self.task.code == "SATIATE" then

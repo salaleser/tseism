@@ -14,6 +14,7 @@ end
 
 function Seed:update(dt)
 	if self.health <= 0 then
+		self:say("I'm dead!")
 		self:destroy()
 	end
 end
@@ -27,6 +28,14 @@ function Seed:draw()
 	and Cursor.selectedZ == self.z then
 		Menu:append(self)
 	end
+end
+
+function Seed:say(message)
+	Log.append("[INFO] " .. self.type .. " says: \"" .. message .. "\"")
+
+	-- love.graphics.setColor(self.color)
+	-- love.graphics.setLineWidth(1)
+	-- love.graphics.rectangle("line", (self.x + 1)*Scale, (self.y)*Scale, 64, 16)
 end
 
 function Seed:destroy()

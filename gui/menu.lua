@@ -1,7 +1,14 @@
 Menu = Object:extend()
 
 function Menu:new()
+	local x, y, w, h = love.window.getSafeArea()
+
+	self.x = h
+	self.y = y
+	self.w = w - h
+	self.h = h
 	self.visible = true
+	self.helpVisible = false
 	self.list = {}
 end
 
@@ -13,6 +20,14 @@ function Menu:keypressed(key, scancode, isrepeat)
 			self.visible = true
 		end
 	end
+
+	if key == "h" then
+		if self.helpVisible then
+			self.helpVisible = false
+		else
+			self.helpVisible = true
+		end
+	end
 end
 
 function Menu:draw()
@@ -20,23 +35,30 @@ function Menu:draw()
 		return
 	end
 
-	local x, y, w, h = love.window.getSafeArea()
-	local menu = {
-		x1 = h,
-		y1 = 0,
-		x2 = w,
-		y2 = h
-	}
-
 	love.graphics.setColor(0, 0, 0, 0.7)
-	love.graphics.rectangle("fill", menu.x1, menu.y1, menu.x2, menu.y2)
+	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 
-	love.graphics.setColor(1, 1, 1, 0.8)
+	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setLineWidth(3)
-	love.graphics.line(menu.x1, menu.y1, menu.x1, menu.y2)
+	love.graphics.line(self.x, self.y, self.x, self.h)
 
-	local lineHeight = 12
 	local lines = {}
+
+	table.insert(lines, {"[Status]"})
+	local fps = love.timer.getFPS()
+	local fpsColor = {0, 1, 0, 1}
+	if fps < 60
+	and fps > 55 then
+		fpsColor = {1, 1, 0, 1}
+	else
+		fpsColor = {1, 0, 0, 1}
+	end
+	table.insert(lines, {" FPS: "..love.timer.getFPS(), fpsColor})
+	table.insert(lines, {" Pointer: "..Cursor.x.."•"..Cursor.y})
+	table.insert(lines, {" Level: "..Level})
+	table.insert(lines, {" Scale: "..Scale})
+	table.insert(lines, {""})
+
 	for i, v in ipairs(self.list) do
 		if v.type ~= nil then
 			table.insert(lines, {"["..v.type.."]", v.color})
@@ -92,34 +114,31 @@ function Menu:draw()
 	end
 	table.insert(lines, {""})
 
-	table.insert(lines, {"[Status]"})
-	local fps = love.timer.getFPS()
-	local fpsColor = {0, 1, 0, 1}
-	if fps < 60
-	and fps > 55 then
-		fpsColor = {1, 1, 0, 1}
+	if self.helpVisible then
+		table.insert(lines, {"[Help]"})
+		table.insert(lines, {" Keys:"})
+		table.insert(lines, {"  [a], [z] — change Z-level"})
+		table.insert(lines, {"  [0], [-], [=] — change scale"})
+		table.insert(lines, {"  [tab] — menu"})
+		table.insert(lines, {"  [m] — minimap"})
+		table.insert(lines, {"  [~] — console"})
 	else
-		fpsColor = {1, 0, 0, 1}
+		table.insert(lines, {"[Help]... (press H to expand)"})
 	end
-	table.insert(lines, {" FPS: "..love.timer.getFPS(), fpsColor})
-	table.insert(lines, {" Pointer: "..Cursor.x.."•"..Cursor.y})
-	table.insert(lines, {" Level: "..Level})
-	table.insert(lines, {" Scale: "..Scale})
 	table.insert(lines, {""})
 
-	table.insert(lines, {"[Help]"})
-	table.insert(lines, {" Keys:"})
-	table.insert(lines, {"  [a], [z] — change Z-level"})
-	table.insert(lines, {"  [0], [-], [=] — change scale"})
-	table.insert(lines, {"  [[], []] — change scale"})
-
+	local lineHeight = 12
 	for j, line in pairs(lines) do
 		if line[2] ~= nil then
 			love.graphics.setColor(line[2])
 		else
 			love.graphics.setColor(1, 1, 1, 1)
 		end
-		love.graphics.print(line[1], menu.x1 + 4, menu.y1 + j*lineHeight)
+		local yOffset = 0
+		if Minimap.visible then
+			yOffset = Minimap.h
+		end
+		love.graphics.print(line[1], self.x + 3, self.y + yOffset + (j - 1)*lineHeight)
 	end
 end
 

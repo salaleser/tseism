@@ -15,6 +15,7 @@ function love.load()
 	require "gui/console"
 	require "gui/cursor"
 	require "gui/menu"
+	require "gui/minimap"
 	require "misc/util"
 	require "world/cell"
 
@@ -37,6 +38,7 @@ function love.load()
 	Log = Log()
 	Console = Console()
 	Menu = Menu()
+	Minimap = Minimap()
 
 	Cells = {}
 	for i = 0,WorldSize.width do
@@ -112,6 +114,7 @@ function love.keypressed(key, scancode, isrepeat)
 	Cursor:keypressed(key, scancode, isrepeat)
 	Console:keypressed(key, scancode, isrepeat)
 	Menu:keypressed(key, scancode, isrepeat)
+	Minimap:keypressed(key, scancode, isrepeat)
 
 	if key == "z" then
 		if Level > 0 then
@@ -188,8 +191,9 @@ function love.draw()
 
 	-- GUI --
 	Cursor:draw()
-	Menu:draw()
 	Console:draw()
+	Menu:draw()
+	Minimap:draw()
 
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setLineWidth(1)
