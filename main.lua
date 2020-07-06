@@ -20,7 +20,8 @@ function love.load()
 	require "gui/minimap"
 	require "misc/util"
 	require "world/cell"
-
+	
+	require "color"
 	require "pathfinder"
 
 	love.graphics.setLineStyle("rough")
@@ -39,6 +40,7 @@ function love.load()
 	Level = WorldSize.depth/2
 
 	Cursor = Cursor(WorldSize.width/2, WorldSize.height/2)
+	Color = Color()
 	Log = Log()
 	Console = Console()
 	Menu = Menu()

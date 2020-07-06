@@ -23,24 +23,20 @@ end
 
 function Log:error(text)
 	local time = math.ceil(love.timer.getTime() - StartTime)
-	local color = {1, 0.2, 0.2, 1}
-	self:add({"[" .. time .. " ERR] " .. text, color})
+	self:add({"[" .. time .. " ERR] " .. text, Color.vermilion})
 end
 
 function Log:warning(text)
 	local time = math.ceil(love.timer.getTime() - StartTime)
-	local color = {1, 1, 0, 1}
-	self:add({"[" .. time .. " WRN] " .. text, color})
+	self:add({"[" .. time .. " WRN] " .. text, Color.cornflower})
 end
 
 function Log:information(text)
 	local time = math.ceil(love.timer.getTime() - StartTime)
-	local color = {0.2, 0.4, 1, 1}
-	self:add({"[" .. time .. " INF] " .. text, color})
+	self:add({"[" .. time .. " INF] " .. text, Color.iris})
 end
 
 function Log:debug(text)
 	local time = math.ceil(love.timer.getTime() - StartTime)
-	local color = {0.5, 0.5, 0.5, 1}
-	self:add({"[" .. time .. " DBG] " .. text, color})
+	self:add({"[" .. time .. " DBG] " .. text, Color.darkGray})
 end
