@@ -78,7 +78,7 @@ function Menu:draw()
 	end
 
 	table.insert(lines, {"[Queue]", Color.corn})
-	for i, v in ipairs(Queue) do
+	for i, v in ipairs(Queue.queue) do
 		local target = ""
 		if v.x ~= nil
 		and v.y ~= nil then

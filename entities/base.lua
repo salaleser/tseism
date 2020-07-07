@@ -3,7 +3,7 @@ Base = Object:extend()
 function Base:new(x, y, z)
 	self.id = NewGuid()
 	self.type = "Base"
-	self.color = {0.7, 0.7, 0.7, 1}
+	self.color = Color.gray
 
 	self.birth = love.timer.getTime() - StartTime
 

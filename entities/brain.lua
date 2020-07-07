@@ -1,8 +1,13 @@
 Brain = Object:extend()
 
 function Brain:new(base, parent)
+	Brain.type = "Brain"
+
+	Brain.taskSatiate = 1
+	Brain.taskFindFood = 2
+
 	self.id = base.id
-	self.type = "Brain"
+	self.type = Brain.type
 	self.color = Color.cherry
 
 	self.x = parent.x
@@ -17,9 +22,6 @@ function Brain:new(base, parent)
 	self.fovLimit = 10
 
 	self.hunger = 8
-
-	self.taskSatiate = 1
-	self.taskFindFood = 2
 end
 
 function Brain:update(dt)
@@ -30,7 +32,7 @@ function Brain:update(dt)
 	self.hunger = self.hunger + 2 * dt
 
 	if self.hunger > 10 then
-		Queue:add(Task(self.id, Brain.type, Brain.taskFindFood))
+		Queue:add(Task(self.id, Brain.type, Brain.taskFindFood, nil, nil, nil))
 	end
 
 	self:takeTask()
@@ -109,10 +111,11 @@ function Brain:drawFov()
 end
 
 function Brain:takeTask()
-	for i, v in ipairs(Queue) do
+	for i, v in ipairs(Queue.queue) do
 		if v.contractorId == self.id
 		and v.contractorType == self.type then
-			table.insert(self.tasks, 1, table.remove(Queue, i))
+			local task = table.remove(Queue.queue, i)
+			table.insert(self.tasks, task)
 			table.sort(self.tasks)
 			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.kind .. "\"")
 		end

@@ -41,7 +41,7 @@ function love.load()
 	}
 	Level = WorldSize.depth/2
 
-	Cursor = Cursor(WorldSize.width/2, WorldSize.height/2)
+	Cursor = Cursor()
 	Color = Color()
 	Log = Log()
 	Console = Console()

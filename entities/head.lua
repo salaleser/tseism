@@ -1,8 +1,12 @@
 Head = Object:extend()
 
 function Head:new(base)
+	Head.type = "Head"
+
+	Head.taskEat = 1
+
 	self.id = base.id
-	self.type = "Head"
+	self.type = Head.type
 
 	self.base = base
 
@@ -50,10 +54,12 @@ function Head:draw()
 end
 
 function Head:takeTask()
-	for i, v in ipairs(Queue) do
+	for i, v in ipairs(Queue.queue) do
 		if v.contractorId == self.id
 		and v.contractorType == self.type then
-			table.insert(self.tasks, table.remove(Queue, i))
+			local task = table.remove(Queue.queue, i)
+			table.insert(self.tasks, task)
+			table.sort(self.tasks)
 			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.kind .. "\"")
 		end
 	end

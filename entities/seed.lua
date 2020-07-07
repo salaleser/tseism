@@ -1,9 +1,11 @@
 Seed = Object:extend()
 
 function Seed:new(x, y, z)
+	Seed.type = "Seed"
+
 	self.id = NewGuid()
-	self.type = "Seed"
-	self.color = {1, 0.78, 0.15, 1}
+	self.type = Seed.type
+	self.color = Color.corn
 
 	self.x = x
 	self.y = y

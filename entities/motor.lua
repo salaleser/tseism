@@ -1,8 +1,12 @@
 Motor = Object:extend()
 
 function Motor:new(base)
+	Motor.type = "Motor"
+
+	Motor.taskMove = 1
+
 	self.id = base.id
-	self.type = "Motor"
+	self.type = Motor.type
 	self.color = { 0, 0, 0.8, 1 }
 
 	self.x = base.x
@@ -75,10 +79,12 @@ function Motor:drawTarget()
 end
 
 function Motor:takeTask()
-	for i, v in ipairs(Queue) do
+	for i, v in ipairs(Queue.queue) do
 		if v.contractorId == self.id
 		and v.contractorType == self.type then
-			table.insert(self.tasks, table.remove(Queue, i))
+			local task = table.remove(Queue.queue, i)
+			table.insert(self.tasks, task)
+			table.sort(self.tasks)
 			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.kind .. "\"")
 		end
 	end

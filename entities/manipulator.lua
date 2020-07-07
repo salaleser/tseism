@@ -1,9 +1,11 @@
 Manipulator = Object:extend()
 
 function Manipulator:new(base)
+	Manipulator.type = "Manipulator"
+
 	self.id = base.id
-	self.type = "Manipulator"
-	self.color = { 0.2, 0.4, 1, 1 }
+	self.type = Manipulator.type
+	self.color = Color.cyan
 
 	self.base = base
 

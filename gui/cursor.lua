@@ -1,8 +1,8 @@
 Cursor = Object:extend()
 
-function Cursor:new(x, y)
-	self.x = x
-	self.y = y
+function Cursor:new()
+	self.x = 0
+	self.y = 0
 	self.selectedX = nil
 	self.selectedY = nil
 	self.selectedZ = nil
