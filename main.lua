@@ -20,10 +20,11 @@ function love.load()
 	require "gui/minimap"
 	require "misc/util"
 	require "world/cell"
-	
+
 	require "color"
 	require "pathfinder"
 
+	love.graphics.setColorMask(true, true, true, true)
 	love.graphics.setLineStyle("rough")
 	local font = love.graphics.newFont("fonts/18432.ttf", 16)
 	love.graphics.setFont(font)
@@ -43,6 +44,7 @@ function love.load()
 	Color = Color()
 	Log = Log()
 	Console = Console()
+	Queue = Queue()
 	Menu = Menu()
 	Help = Help()
 	Minimap = Minimap()
@@ -56,6 +58,11 @@ function love.load()
 			end
 		end
 	end
+
+	local t = {1,2,3,4,5,10,6}
+	Log:debug(table.concat(t, "-"))
+	table.sort(t)
+	Log:debug(table.concat(t, "-"))
 
 	Block:init()
 	Blocks = {}

@@ -3,7 +3,7 @@ Brain = Object:extend()
 function Brain:new(base, parent)
 	self.id = base.id
 	self.type = "Brain"
-	self.color = { 0.8, 0.5, 0.7, 1 }
+	self.color = Color.cherry
 
 	self.x = parent.x
 	self.y = parent.y
@@ -17,6 +17,9 @@ function Brain:new(base, parent)
 	self.fovLimit = 10
 
 	self.hunger = 8
+
+	self.taskSatiate = 1
+	self.taskFindFood = 2
 end
 
 function Brain:update(dt)
@@ -27,7 +30,7 @@ function Brain:update(dt)
 	self.hunger = self.hunger + 2 * dt
 
 	if self.hunger > 10 then
-		Queue:add(Task(self.id, "INTEL", "GET_FOOD", nil, nil))
+		Queue:add(Task(self.id, Brain.type, Brain.taskFindFood))
 	end
 
 	self:takeTask()
@@ -106,11 +109,12 @@ function Brain:drawFov()
 end
 
 function Brain:takeTask()
-	for i,v in ipairs(Queue) do
-		if v.contractor == self.id
-		and v.category == "INTEL" then
-			table.insert(self.tasks, table.remove(Queue, i))
-			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
+	for i, v in ipairs(Queue) do
+		if v.contractorId == self.id
+		and v.contractorType == self.type then
+			table.insert(self.tasks, 1, table.remove(Queue, i))
+			table.sort(self.tasks)
+			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.kind .. "\"")
 		end
 	end
 end
@@ -122,7 +126,7 @@ function Brain:processTask()
 
 	local task = table.remove(self.tasks)
 
-	if task.code == "GET_FOOD" then
+	if task.kind == Brain.taskGetFood then
 		if #self.eatables == 0 then
 			self.eatables = self:findFood()
 			if #self.eatables == 0 then
@@ -136,22 +140,22 @@ function Brain:processTask()
 		if self.x == target.x
 		and self.y == target.y
 		and self.z == target.z then
-			-- eat food at self position
-			Queue:add(Task(self.id, "HEAD", "EAT", nil, nil, target))
+			-- eat food at the self position
+			Queue:add(Task(self.id, Head.type, Head.taskEat, nil, nil, target))
 		else
-			-- move at food position
+			-- move at a food position
 			self.path = Pathfinder:build(self.x, self.y, target.x, target.y)
 			if #self.path > 1 then
-				Queue:add(Task(self.id, "MOTOR", "MOVE", self.path[2].x, self.path[2].y, nil))
+				Queue:add(Task(self.id, Motor.type, Motor.taskMove, self.path[2].x, self.path[2].y, nil))
 			else
-				return "cannot find passable route for {" .. target.x .. "," .. target.y .. "," .. target.z .. "}"
+				return "cannot find a passable route for {" .. target.x .. "," .. target.y .. "," .. target.z .. "}"
 			end
 		end
-	elseif task.code == "SATIATE" then
+	elseif task.kind == Brain.taskSatiate then
 		self.hunger = self.hunger - 20
 		Log:information(self.type .. " says: \"Hunger reduced for 20\"")
 	else
-		return "cannot hanlde a task \"" .. task.code .. "\""
+		return "cannot hanlde a task \"" .. task.kind .. "\""
 	end
 end
 

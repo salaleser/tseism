@@ -23,7 +23,7 @@ end
 
 function Log:error(text)
 	local time = math.ceil(love.timer.getTime() - StartTime)
-	self:add({"[" .. time .. " ERR] " .. text, Color.vermilion})
+	self:add({"[" .. time .. " ERR] " .. text, Color.salmon})
 end
 
 function Log:warning(text)

@@ -51,10 +51,10 @@ end
 
 function Head:takeTask()
 	for i, v in ipairs(Queue) do
-		if v.contractor == self.id
-		and v.category == "HEAD" then
+		if v.contractorId == self.id
+		and v.contractorType == self.type then
 			table.insert(self.tasks, table.remove(Queue, i))
-			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
+			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.kind .. "\"")
 		end
 	end
 end
@@ -66,17 +66,17 @@ function Head:processTask()
 
 	local task = table.remove(self.tasks)
 
-	if task.code == "EAT" then
+	if task.kind == Head.taskEat then
 		local cost = 1
 		if self.fatigue + cost > cost then
 			return
 		end
 
 		task.target.health = task.target.health - 20 -- directly!
-		Queue:add(Task(self.id, "INTEL", "SATIATE"))
+		Queue:add(Task(self.id, Brain.type, Brain.taskSatiate))
 
 		self.fatigue = self.fatigue + cost
 	else
-		return "cannot hanlde a task \"" .. task.code .. "\""
+		return "cannot hanlde a task \"" .. task.kind .. "\""
 	end
 end

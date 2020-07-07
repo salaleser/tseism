@@ -26,18 +26,29 @@ function Minimap:draw()
 		return
 	end
 
-	love.graphics.setColor(1, 1, 1, 1)
+	self:drawBorder()
+	self:drawBackground()
+	self:drawMinimap()
+end
+
+function Minimap:drawBorder()
+	love.graphics.setColor(Color.black)
+	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+end
+
+function Minimap:drawBackground()
+	love.graphics.setColor(Color.white)
 	love.graphics.setLineWidth(1)
 	love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
+end
 
-	local blocked = {0.8, 0.8, 0.8, 1}
-	local passable = {0, 0, 0, 1}
+function Minimap:drawMinimap()
 	for i = 1, WorldSize.width do
 		for j = 1, WorldSize.height do
 			if self.map[i][j] == 0 then
-				love.graphics.setColor(blocked)
+				love.graphics.setColor(Color.ivory)
 			elseif self.map[i][j] == 1 then
-				love.graphics.setColor(passable)
+				love.graphics.setColor(Color.black)
 			end
 			love.graphics.rectangle("fill", j - 1 + self.x, i - 1 + self.y, 1, 1)
 		end

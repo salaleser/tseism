@@ -26,10 +26,10 @@ function Menu:draw()
 		return
 	end
 
-	love.graphics.setColor(0, 0, 0, 1)
+	love.graphics.setColor(Color.black)
 	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 
-	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setColor(Color.white)
 	love.graphics.setLineWidth(1)
 	love.graphics.line(self.x, self.y, self.x, self.h)
 
@@ -72,13 +72,12 @@ function Menu:draw()
 				elseif task.target ~= nil then
 					target = task.target.x .. "," .. task.target.y
 				end
-				table.insert(lines, {"    " .. i .. ". " .. v.task.category .. "." .. v.task.code .. "(" .. target .. ")", v.color})
+				table.insert(lines, {"    " .. i .. ". " .. v.task.contractorType .. "." .. v.task.kind .. "(" .. target .. ")", v.color})
 			end
 		end
 	end
 
-	local queueColor = {1, 1, 0, 1}
-	table.insert(lines, {"[Queue]", queueColor})
+	table.insert(lines, {"[Queue]", Color.corn})
 	for i, v in ipairs(Queue) do
 		local target = ""
 		if v.x ~= nil
@@ -87,7 +86,7 @@ function Menu:draw()
 		elseif v.target ~= nil then
 			target = v.target.x .. "," .. v.target.y
 		end
-		table.insert(lines, {i .. ": " .. v.category .. "." .. v.code .. "(" .. target .. ")", queueColor})
+		table.insert(lines, {i .. ": " .. v.contractorType .. "." .. v.kind .. "(" .. target .. ")", Color.corn})
 	end
 
 	local lineHeight = 12
@@ -95,7 +94,7 @@ function Menu:draw()
 		if line[2] ~= nil then
 			love.graphics.setColor(line[2])
 		else
-			love.graphics.setColor(1, 1, 1, 1)
+			love.graphics.setColor(Color.white)
 		end
 		local yOffset = 0
 		if Minimap.visible then

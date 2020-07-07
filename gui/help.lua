@@ -47,7 +47,7 @@ function Help:draw()
 		if line[2] ~= nil then
 			love.graphics.setColor(line[2])
 		else
-			love.graphics.setColor(1, 1, 1, 1)
+			love.graphics.setColor(Color.white)
 		end
 		love.graphics.print(line[1], self.x + 0.4*self.w, self.y + 0.2*self.h + (j - 1)*lineHeight)
 	end

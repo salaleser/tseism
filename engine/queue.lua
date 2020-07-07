@@ -5,7 +5,12 @@ function Queue:new()
 end
 
 function Queue:add(task)
-	if not Contains(Queue, task) then
-		table.insert(Queue, task)
+	for _, v in ipairs(self.queue) do
+		if v.kind == task.kind
+		and v.contractorType == task.contractorType
+		and v.contractorId == task.contractorId then
+			return
+		end
 	end
+	table.insert(self.queue, task)
 end

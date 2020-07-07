@@ -76,10 +76,10 @@ end
 
 function Motor:takeTask()
 	for i, v in ipairs(Queue) do
-		if v.contractor == self.id
-		and v.category == "MOTOR" then
+		if v.contractorId == self.id
+		and v.contractorType == self.type then
 			table.insert(self.tasks, table.remove(Queue, i))
-			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.code .. "\"")
+			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.kind .. "\"")
 		end
 	end
 end
@@ -91,7 +91,7 @@ function Motor:processTask()
 
 	local task = table.remove(self.tasks)
 
-	if task.code == "MOVE" then
+	if task.kind == Motor.taskMove then
 		local cost = 5
 		if self.fatigue + cost > cost then
 			return
@@ -102,6 +102,6 @@ function Motor:processTask()
 
 		self.fatigue = self.fatigue + cost
 	else
-		return "cannot hanlde a task \"" .. task.code .. "\""
+		return "cannot hanlde a task \"" .. task.kind .. "\""
 	end
 end

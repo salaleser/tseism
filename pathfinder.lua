@@ -57,14 +57,12 @@ function Pathfinder:draw()
 		return
 	end
 
-	local blocked = {1, 0, 0, 0.5}
-	local passable = {0, 1, 0, 0.5}
 	for i = 1, WorldSize.width do
 		for j = 1, WorldSize.height do
 			if self.map[i][j] == 0 then
-				love.graphics.setColor(blocked)
+				love.graphics.setColor({1, 0, 0, 0.4})
 			elseif self.map[i][j] == 1 then
-				love.graphics.setColor(passable)
+				love.graphics.setColor({0, 1, 0, 0.4})
 			end
 			love.graphics.rectangle("fill", (j - 1)*Scale, (i - 1)*Scale, Scale, Scale)
 		end
