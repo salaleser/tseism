@@ -15,6 +15,7 @@ function love.load()
 	require "gui/console"
 	require "gui/cursor"
 	require "gui/help"
+	require "gui/pause"
 	require "gui/overlay"
 	require "gui/menu"
 	require "gui/minimap"
@@ -47,6 +48,7 @@ function love.load()
 	Queue = Queue()
 	Menu = Menu()
 	Help = Help()
+	Pause = Pause()
 	Minimap = Minimap()
 	Overlay = Overlay()
 
@@ -58,11 +60,6 @@ function love.load()
 			end
 		end
 	end
-
-	local t = {1,2,3,4,5,10,6}
-	Log:debug(table.concat(t, "-"))
-	table.sort(t)
-	Log:debug(table.concat(t, "-"))
 
 	Block:init()
 	Blocks = {}
@@ -120,6 +117,10 @@ function love.load()
 end
 
 function love.update(dt)
+	if Pause.active then
+		return
+	end
+
 	for _, v in ipairs(Cells) do
 		v:update(dt)
 	end
@@ -144,6 +145,7 @@ function love.keypressed(key, scancode, isrepeat)
 	Cursor:keypressed(key, scancode, isrepeat)
 	Console:keypressed(key, scancode, isrepeat)
 	Help:keypressed(key, scancode, isrepeat)
+	Pause:keypressed(key, scancode, isrepeat)
 	Menu:keypressed(key, scancode, isrepeat)
 	Minimap:keypressed(key, scancode, isrepeat)
 	Pathfinder:keypressed(key, scancode, isrepeat)
@@ -184,11 +186,8 @@ function love.keypressed(key, scancode, isrepeat)
 		end
 	end
 
-	if key == "space" then
-		love.event.wait()
-	end
-
-	if key == "escape" then
+	if key == "escape"
+	or key == "q" then
 		love.event.quit()
 	end
 
@@ -230,8 +229,9 @@ function love.draw()
 	Pathfinder:draw()
 	Overlay:draw()
 	Help:draw()
+	Pause:draw()
 
-	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setColor(Color.white)
 	love.graphics.setLineWidth(1)
 	love.graphics.rectangle("line", 0, 0, (WorldSize.width + 1)*Scale, (WorldSize.height + 1)*Scale)
 end
