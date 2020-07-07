@@ -15,6 +15,8 @@ function Head:new(base)
 	self.z = base.z
 
 	self.tasks = {}
+	self.fatigueTask = 0
+	self.speedTask = 10
 
 	self.health = 100
 	self.fatigue = 0
@@ -25,6 +27,13 @@ function Head:update(dt)
 	self.x = self.base.x
 	self.y = self.base.y
 	self.z = self.base.z
+
+	if self.fatigueTask > 0 then
+		self.fatigueTask = self.fatigueTask - self.speedTask * dt
+		if self.fatigueTask < 0 then
+			self.fatigueTask = 0
+		end
+	end
 
 	if self.fatigue > 0 then
 		self.fatigue = self.fatigue - self.force * dt
@@ -54,6 +63,11 @@ function Head:draw()
 end
 
 function Head:takeTask()
+	local cost = 5
+	if self.fatigueTask + cost > cost then
+		return
+	end
+
 	for i, v in ipairs(Queue.queue) do
 		if v.contractorId == self.id
 		and v.contractorType == self.type then
@@ -63,6 +77,8 @@ function Head:takeTask()
 			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.kind .. "\"")
 		end
 	end
+
+	self.fatigueTask = self.fatigueTask + cost
 end
 
 function Head:processTask()

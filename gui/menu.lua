@@ -4,9 +4,9 @@ function Menu:new()
 	local x, y, w, h = love.window.getSafeArea()
 
 	self.x = h
-	self.y = y
+	self.y = y + 1
 	self.w = w - h
-	self.h = h
+	self.h = h - 1
 	self.visible = true
 	self.list = {}
 end
@@ -25,13 +25,6 @@ function Menu:draw()
 	if not self.visible then
 		return
 	end
-
-	love.graphics.setColor(Color.black)
-	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
-
-	love.graphics.setColor(Color.white)
-	love.graphics.setLineWidth(1)
-	love.graphics.line(self.x, self.y, self.x, self.h)
 
 	local lines = {}
 
@@ -62,6 +55,9 @@ function Menu:draw()
 		if v.speed ~= nil then
 			table.insert(lines, {"  Speed: " .. v.speed, v.color})
 		end
+		if v.fatigueTask ~= nil then
+			table.insert(lines, {"  FatigueTask: " .. v.fatigueTask, v.color})
+		end
 		if v.tasks ~= nil then
 			local target = ""
 			table.insert(lines, {"  Tasks: ", v.color})
@@ -89,6 +85,23 @@ function Menu:draw()
 		table.insert(lines, {i .. ": " .. v.contractorType .. "." .. v.kind .. "(" .. target .. ")", Color.corn})
 	end
 
+	self:drawBackground()
+	self:drawBorder()
+	self:drawMenu(lines)
+end
+
+function Menu:drawBackground()
+	love.graphics.setColor(Color.black)
+	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+end
+
+function Menu:drawBorder()
+	love.graphics.setColor(Color.white)
+	love.graphics.setLineWidth(1)
+	love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
+end
+
+function Menu:drawMenu(lines)
 	local lineHeight = 12
 	for j, line in pairs(lines) do
 		if line[2] ~= nil then

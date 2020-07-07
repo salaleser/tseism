@@ -4,7 +4,7 @@ function Minimap:new()
 	local x, y, w, h = love.window.getSafeArea()
 
 	self.x = x + h
-	self.y = y
+	self.y = y + 1
 	self.w = w - h
 	self.h = w - h
 	self.visible = true
@@ -26,17 +26,17 @@ function Minimap:draw()
 		return
 	end
 
-	self:drawBorder()
 	self:drawBackground()
+	self:drawBorder()
 	self:drawMinimap()
 end
 
-function Minimap:drawBorder()
+function Minimap:drawBackground()
 	love.graphics.setColor(Color.black)
 	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 end
 
-function Minimap:drawBackground()
+function Minimap:drawBorder()
 	love.graphics.setColor(Color.white)
 	love.graphics.setLineWidth(1)
 	love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
@@ -46,7 +46,7 @@ function Minimap:drawMinimap()
 	for i = 1, WorldSize.width do
 		for j = 1, WorldSize.height do
 			if self.map[i][j] == 0 then
-				love.graphics.setColor(Color.ivory)
+				love.graphics.setColor(Color.gray)
 			elseif self.map[i][j] == 1 then
 				love.graphics.setColor(Color.black)
 			end

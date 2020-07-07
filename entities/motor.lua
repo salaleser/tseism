@@ -7,14 +7,17 @@ function Motor:new(base)
 
 	self.id = base.id
 	self.type = Motor.type
-	self.color = { 0, 0, 0.8, 1 }
+	self.color = Color.blue
 
 	self.x = base.x
 	self.y = base.y
 	self.z = base.z
 
 	self.base = base
+
 	self.tasks = {}
+	self.fatigueTask = 0
+	self.speedTask = 10
 
 	self.health = 100
 	self.fatigue = 0
@@ -25,6 +28,13 @@ function Motor:update(dt)
 	self.x = self.base.x
 	self.y = self.base.y
 	self.z = self.base.z
+
+	if self.fatigueTask > 0 then
+		self.fatigueTask = self.fatigueTask - self.speedTask * dt
+		if self.fatigueTask < 0 then
+			self.fatigueTask = 0
+		end
+	end
 
 	if self.fatigue > 0 then
 		self.fatigue = self.fatigue - self.speed * dt
@@ -79,6 +89,11 @@ function Motor:drawTarget()
 end
 
 function Motor:takeTask()
+	local cost = 5
+	if self.fatigueTask + cost > cost then
+		return
+	end
+
 	for i, v in ipairs(Queue.queue) do
 		if v.contractorId == self.id
 		and v.contractorType == self.type then
@@ -88,6 +103,8 @@ function Motor:takeTask()
 			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.kind .. "\"")
 		end
 	end
+
+	self.fatigueTask = self.fatigueTask + cost
 end
 
 function Motor:processTask()

@@ -22,8 +22,10 @@ function Pathfinder:new(w, h)
 	Minimap.map = self.map
 end
 
-function Pathfinder:build(x1, y1, x2, y2)
-	return pajarito.pathfinder(x1, y1, x2, y2)
+function Pathfinder:build(x1, y1, x2, y2, distance)
+	pajarito.buildRange(x1, y1, distance)
+	pajarito.buildInRangePathTo(x2, y2)
+	return pajarito.getFoundPath()
 end
 
 function Pathfinder:isPassable(x, y)

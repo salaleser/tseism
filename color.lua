@@ -51,7 +51,6 @@ function Color:new()
 	-- self.darkgoldenrod = {184,134,11,1}
 	-- self.tomato = {255,99,71,1}
 	-- self.linen = {250,240,230,1}
-	-- self.blue = {0,0,255,1}
 	-- self.mintcream = {245,255,250,1}
 	-- self.mediumpurple = {147,112,219,1}
 	-- self.oldlace = {253,245,230,1}
@@ -91,7 +90,6 @@ function Color:new()
 	-- self.limegreen = {50,205,50,1}
 	-- self.ghostwhite = {248,248,255,1}
 	-- self.darkorchid = {153,50,204,1}
-	-- self.navy = {0,0,128,1}
 	-- self.lightgreen = {144,238,144,1}
 	-- self.goldenrod = {218,165,32,1}
 	-- self.rebeccapurple = {102,51,153,1}
@@ -135,6 +133,7 @@ function Color:new()
 	-- self.peachpuff = {255,218,185,1}
 	-- self.darksalmon = {233,150,122,1}
 	self.black = {0, 0, 0}
+	self.blue = {0, 0, 1}
 	self.canary = {1, 1, 153/255}
 	self.cherry = {222/255, 49/255, 99/255}
 	self.corn = {251/255, 236/255, 93/255}
@@ -153,6 +152,7 @@ function Color:new()
 	self.lemon = {1, 247/255, 0}
 	self.lightGrey = {211/255, 211/255, 211/255}
 	self.maroon = {128/255, 0, 0}
+	self.navy = {0, 0, 128/255}
 	self.olive = {128/255, 128/255, 0}
 	self.purple = {128/255, 0, 128/255}
 	self.red = {1, 0, 0}

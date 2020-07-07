@@ -16,10 +16,12 @@ function Brain:new(base, parent)
 
 	self.base = base
 	self.parent = parent
-	self.tasks = {}
 	self.path = {}
-	self.eatables = {}
 	self.fovLimit = 10
+
+	self.tasks = {}
+	self.fatigueTask = 0
+	self.speedTask = 10
 
 	self.hunger = 8
 end
@@ -28,6 +30,13 @@ function Brain:update(dt)
 	self.x = self.parent.x
 	self.y = self.parent.y
 	self.z = self.parent.z
+
+	if self.fatigueTask > 0 then
+		self.fatigueTask = self.fatigueTask - self.speedTask * dt
+		if self.fatigueTask < 0 then
+			self.fatigueTask = 0
+		end
+	end
 
 	self.hunger = self.hunger + 2 * dt
 
@@ -101,7 +110,7 @@ function Brain:drawFov()
 		return
 	end
 
-	love.graphics.setColor(0, 1, 0, 0.15)
+	love.graphics.setColor(0, 1, 0, 0.1)
 	local r = self.fovLimit
 	for i = self.x - r, self.x + r do
 		for j = self.y - r, self.y + r do
@@ -111,6 +120,11 @@ function Brain:drawFov()
 end
 
 function Brain:takeTask()
+	local cost = 5
+	if self.fatigueTask + cost > cost then
+		return
+	end
+
 	for i, v in ipairs(Queue.queue) do
 		if v.contractorId == self.id
 		and v.contractorType == self.type then
@@ -120,6 +134,8 @@ function Brain:takeTask()
 			Log:information(self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. "got a task \"" .. v.kind .. "\"")
 		end
 	end
+
+	self.fatigueTask = self.fatigueTask + cost
 end
 
 function Brain:processTask()
@@ -129,15 +145,13 @@ function Brain:processTask()
 
 	local task = table.remove(self.tasks)
 
-	if task.kind == Brain.taskGetFood then
-		if #self.eatables == 0 then
-			self.eatables = self:findFood()
-			if #self.eatables == 0 then
-				return "there is no food"
-			end
+	if task.kind == Brain.taskFindFood then
+		local food = self:findFood()
+		if #food == 0 then
+			return "there is no food"
 		end
 
-		local target = self.eatables[1]
+		local target = food[1]
 
 		-- make orders
 		if self.x == target.x
@@ -147,16 +161,16 @@ function Brain:processTask()
 			Queue:add(Task(self.id, Head.type, Head.taskEat, nil, nil, target))
 		else
 			-- move at a food position
-			self.path = Pathfinder:build(self.x, self.y, target.x, target.y)
-			if #self.path > 1 then
+			self.path = Pathfinder:build(self.x, self.y, target.x, target.y, self.fovLimit)
+			if #self.path > 0 then
 				Queue:add(Task(self.id, Motor.type, Motor.taskMove, self.path[2].x, self.path[2].y, nil))
 			else
-				return "cannot find a passable route for {" .. target.x .. "," .. target.y .. "," .. target.z .. "}"
+				return "cannot find a passable route to {" .. target.x .. "•" .. target.y .. "•" .. target.z .. "}"
 			end
 		end
 	elseif task.kind == Brain.taskSatiate then
-		self.hunger = self.hunger - 20
-		Log:information(self.type .. " says: \"Hunger reduced for 20\"")
+		self.hunger = self.hunger - 10
+		Log:information(self.type .. " says: \"Hunger reduced for 10\"")
 	else
 		return "cannot hanlde a task \"" .. task.kind .. "\""
 	end

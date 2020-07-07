@@ -85,15 +85,15 @@ function love.load()
 	end
 
 	Seeds = {}
-	for i = 0, WorldSize.width do
-		for j = 0, WorldSize.height do
-			for k = 0, WorldSize.depth do
-				if love.math.random() > 0.95 then
-					table.insert(Seeds, Seed(j, i, k))
-				end
-			end
-		end
-	end
+	-- for i = 0, WorldSize.width do
+	-- 	for j = 0, WorldSize.height do
+	-- 		for k = 0, WorldSize.depth do
+	-- 			if love.math.random() > 0.95 then
+	-- 				table.insert(Seeds, Seed(j, i, k))
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
 
 	-- build Entities
 	Entities = {}
@@ -150,6 +150,10 @@ function love.keypressed(key, scancode, isrepeat)
 	Minimap:keypressed(key, scancode, isrepeat)
 	Pathfinder:keypressed(key, scancode, isrepeat)
 	Overlay:keypressed(key, scancode, isrepeat)
+
+	if key == "p" then
+		table.insert(Seeds, Seed(Cursor.x, Cursor.y, Level))
+	end
 
 	if key == "z" then
 		if Level > 0 then
@@ -222,11 +226,11 @@ function love.draw()
 	end
 
 	-- GUI --
+	Pathfinder:draw()
 	Cursor:draw()
 	Menu:draw()
 	Console:draw()
 	Minimap:draw()
-	Pathfinder:draw()
 	Overlay:draw()
 	Help:draw()
 	Pause:draw()

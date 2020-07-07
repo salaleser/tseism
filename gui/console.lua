@@ -27,16 +27,16 @@ function Console:draw()
 		return
 	end
 
-	love.graphics.setColor(0, 0, 0, 0.6)
+	love.graphics.setColor(0, 0, 0, 0.8)
 	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 
-	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setColor(Color.white)
 	love.graphics.setLineWidth(1)
 	love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 
 	for i, line in ipairs(Log.list) do
 		if line[2] == nil then
-			love.graphics.setColor(1, 1, 1, 1)
+			love.graphics.setColor(Color.white)
 		else
 			love.graphics.setColor(line[2])
 		end
