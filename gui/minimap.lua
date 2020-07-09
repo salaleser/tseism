@@ -21,6 +21,20 @@ function Minimap:keypressed(key, scancode, isrepeat)
 	end
 end
 
+function Minimap:update()
+	for i = 0, WorldSize.width do
+		local row = {}
+		for j = 0, WorldSize.height do
+			if Pathfinder:isPassable(j, i) then
+				table.insert(row, 1)
+			else
+				table.insert(row, 0)
+			end
+		end
+		table.insert(self.map, row)
+	end
+end
+
 function Minimap:draw()
 	if not self.visible then
 		return
@@ -43,8 +57,8 @@ function Minimap:drawBorder()
 end
 
 function Minimap:drawMinimap()
-	for i = 1, WorldSize.width do
-		for j = 1, WorldSize.height do
+	for i = 1, #self.map do
+		for j = 1, #self.map[i] do
 			if self.map[i][j] == 0 then
 				love.graphics.setColor(Color.gray)
 			elseif self.map[i][j] == 1 then

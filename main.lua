@@ -42,15 +42,16 @@ function love.load()
 	Level = WorldSize.depth/2
 
 	Cursor = Cursor()
-	Color = Color()
 	Log = Log()
 	Console = Console()
-	Queue = Queue()
+	Overlay = Overlay()
 	Menu = Menu()
 	Help = Help()
-	Pause = Pause()
+	Pathfinder = Pathfinder()
 	Minimap = Minimap()
-	Overlay = Overlay()
+	Queue = Queue()
+	Pause = Pause()
+	Color = Color()
 
 	Cells = {}
 	for i = 0, WorldSize.width do
@@ -63,6 +64,24 @@ function love.load()
 
 	Block:init()
 	Blocks = {}
+
+	local p = Pathfinder:find(0, 0, 5, 5)
+	love.graphics.setColor(0.5, 1, 0.5, 0.5)
+	local x = p[1].x*Scale + Scale/2
+	local y = p[1].y*Scale + Scale/2
+	Log:debug(#p .. " " .. x .. " " .. y)
+	love.graphics.circle("line", x, y, Scale/2)
+
+	for i = 2, #p do
+		local x1 = p[i-1].x*Scale + Scale/2
+		local y1 = p[i-1].y*Scale + Scale/2
+		local x2 = p[i].x*Scale + Scale/2
+		local y2 = p[i].y*Scale + Scale/2
+		love.graphics.line(x1, y1, x2, y2)
+		love.graphics.print(p[i].c, p[i].x*Scale, p[i].y*Scale)
+	end
+
+	Minimap:update()
 
 	local ship1X = 1
 	local ship1Y = 1
@@ -112,8 +131,6 @@ function love.load()
 
 	local brain = Brain(base, head)
 	table.insert(Entities, brain)
-
-	Pathfinder = Pathfinder(WorldSize.width, WorldSize.height)
 end
 
 function love.update(dt)
