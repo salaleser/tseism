@@ -95,7 +95,7 @@ function Head:processTask()
 		end
 
 		task.target.health = task.target.health - 20 -- directly!
-		Queue:add(Task(self.id, Brain.type, Brain.taskSatiate))
+		Queue:add(Task(self.id, Brain.type, Brain.taskSatiate, nil))
 
 		self.fatigue = self.fatigue + cost
 	else

@@ -17,7 +17,7 @@ function Brain:new(base, parent)
 	self.base = base
 	self.parent = parent
 	self.path = {}
-	self.fovLimit = 10
+	self.fovLimit = 16
 
 	self.tasks = {}
 	self.fatigueTask = 0
@@ -41,7 +41,7 @@ function Brain:update(dt)
 	self.hunger = self.hunger + 2 * dt
 
 	if self.hunger > 10 then
-		Queue:add(Task(self.id, Brain.type, Brain.taskFindFood, nil, nil, nil))
+		Queue:add(Task(self.id, Brain.type, Brain.taskFindFood, nil))
 	end
 
 	self:takeTask()
@@ -67,39 +67,28 @@ function Brain:draw()
 	end
 	Menu:append(self) -->FIXME
 
-	self:drawTarget()
 	self:drawPath()
 	self:drawFov()
 end
 
-function Brain:drawTarget()
-	if self.task == nil
-	or self.task.target == nil then
-		return
-	end
-
-	love.graphics.setColor(1, 0.5, 0.5, 0.5)
-	love.graphics.setLineWidth(1)
-	love.graphics.circle("line", self.task.target.x*Scale + Scale/2, self.task.target.y*Scale + Scale/2, 0.4*Scale)
-end
-
 function Brain:drawPath()
-	if self.path == nil
-	or #self.path < 2 then
+	if #self.path == 0 then
 		return
 	end
 
 	love.graphics.setColor(0.5, 1, 0.5, 0.5)
-	local x = self.path[#self.path].x*Scale + Scale/2
-	local y = self.path[#self.path].y*Scale + Scale/2
-	love.graphics.circle("line", x, y, Scale/2)
-
+	local endX = self.path[1][1]*Scale + Scale/2
+	local endY = self.path[1][2]*Scale + Scale/2
+	local startX = self.path[#self.path][1]*Scale + Scale/2
+	local startY = self.path[#self.path][2]*Scale + Scale/2
+	love.graphics.circle("line", endX, endY, 0.4*Scale)
+	love.graphics.circle("fill", startX, startY, 0.2*Scale)
 	for i = 2, #self.path do
-		local x1 = self.path[i-1].x*Scale + Scale/2
-		local y1 = self.path[i-1].y*Scale + Scale/2
-		local x2 = self.path[i].x*Scale + Scale/2
-		local y2 = self.path[i].y*Scale + Scale/2
-		love.graphics.line(x1, y1, x2, y2)
+		local previousX = self.path[i-1][1]*Scale + Scale/2
+		local previousY = self.path[i-1][2]*Scale + Scale/2
+		local currentX = self.path[i][1]*Scale + Scale/2
+		local currentY = self.path[i][2]*Scale + Scale/2
+		love.graphics.line(previousX, previousY, currentX, currentY)
 	end
 end
 
@@ -146,26 +135,32 @@ function Brain:processTask()
 	local task = table.remove(self.tasks)
 
 	if task.kind == Brain.taskFindFood then
-		local food = self:findFood()
-		if #food == 0 then
+		local foods = self:findFood()
+		if #foods == 0 then
 			return "there is no food"
 		end
 
-		local target = food[1]
+		local food = foods[1]
 
 		-- make orders
-		if self.x == target.x
-		and self.y == target.y
-		and self.z == target.z then
+		if self.x == food.x
+		and self.y == food.y
+		and self.z == food.z then
 			-- eat food at the self position
-			Queue:add(Task(self.id, Head.type, Head.taskEat, nil, nil, target))
+			self.path = {}
+			Queue:add(Task(self.id, Head.type, Head.taskEat, food))
 		else
 			-- move at a food position
-			self.path = Pathfinder:build(self.x, self.y, target.x, target.y, self.fovLimit)
+			self.path = Pathfinder:find({self.x, self.y}, {food.x, food.y})
 			if #self.path > 0 then
-				Queue:add(Task(self.id, Motor.type, Motor.taskMove, self.path[2].x, self.path[2].y, nil))
+				local position = Position(
+					self.path[#self.path-1][1],
+					self.path[#self.path-1][2],
+					self.path[#self.path-1][3]
+				)
+				Queue:add(Task(self.id, Motor.type, Motor.taskMove, position))
 			else
-				return "cannot find a passable route to {" .. target.x .. "•" .. target.y .. "•" .. target.z .. "}"
+				return "cannot find a passable route to {" .. food.x .. "•" .. food.y .. "•" .. food.z .. "}"
 			end
 		end
 	elseif task.kind == Brain.taskSatiate then

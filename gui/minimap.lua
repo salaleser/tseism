@@ -22,17 +22,17 @@ function Minimap:keypressed(key, scancode, isrepeat)
 end
 
 function Minimap:update()
-	for i = 0, WorldSize.width do
-		local row = {}
-		for j = 0, WorldSize.height do
-			if Pathfinder:isPassable(j, i) then
-				table.insert(row, 1)
-			else
-				table.insert(row, 0)
-			end
-		end
-		table.insert(self.map, row)
-	end
+	-- for i = 0, WorldSize.width do
+	-- 	local row = {}
+	-- 	for j = 0, WorldSize.height do
+	-- 		if Pathfinder:getCost(j, i) then
+	-- 			table.insert(row, 1)
+	-- 		else
+	-- 			table.insert(row, 0)
+	-- 		end
+	-- 	end
+	-- 	table.insert(self.map, row)
+	-- end
 end
 
 function Minimap:draw()
@@ -57,14 +57,16 @@ function Minimap:drawBorder()
 end
 
 function Minimap:drawMinimap()
-	for i = 1, #self.map do
-		for j = 1, #self.map[i] do
-			if self.map[i][j] == 0 then
+	for i, row in pairs(self.map) do
+		for j, cell in pairs(row) do
+			if cell[Level+1] == math.huge then
 				love.graphics.setColor(Color.gray)
-			elseif self.map[i][j] == 1 then
+			elseif cell[Level+1] == 1 then
 				love.graphics.setColor(Color.black)
+			else
+				love.graphics.setColor(Color.cyan)
 			end
-			love.graphics.rectangle("fill", j - 1 + self.x, i - 1 + self.y, 1, 1)
+			love.graphics.rectangle("fill", i - 1 + self.x, j - 1 + self.y, 1, 1)
 		end
 	end
 end

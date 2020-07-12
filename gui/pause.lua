@@ -26,6 +26,6 @@ function Pause:draw()
 	end
 
 	love.graphics.setColor(Color.canary)
-	love.graphics.setLineWidth(16)
+	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 end

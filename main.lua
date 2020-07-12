@@ -5,6 +5,7 @@ function love.load()
 	require "engine/log"
 	require "engine/queue"
 	require "engine/task"
+	require "engine/position"
 	require "entities/base"
 	require "entities/block"
 	require "entities/brain"
@@ -27,8 +28,10 @@ function love.load()
 
 	love.graphics.setColorMask(true, true, true, true)
 	love.graphics.setLineStyle("rough")
-	local font = love.graphics.newFont("fonts/18432.ttf", 16)
-	love.graphics.setFont(font)
+	Font8 = love.graphics.newFont("fonts/18432.ttf", 8)
+	Font16 = love.graphics.newFont("fonts/18432.ttf", 16)
+	Font32 = love.graphics.newFont("fonts/18432.ttf", 32)
+	love.graphics.setFont(Font16)
 
 	StartTime = love.timer.getTime()
 
@@ -36,7 +39,7 @@ function love.load()
 	ScaleLimit = 4096
 	WorldSize = {
 		width = 64,
-		height = 64,
+		height = 32,
 		depth = 8
 	}
 	Level = WorldSize.depth/2
@@ -47,7 +50,6 @@ function love.load()
 	Overlay = Overlay()
 	Menu = Menu()
 	Help = Help()
-	Pathfinder = Pathfinder()
 	Minimap = Minimap()
 	Queue = Queue()
 	Pause = Pause()
@@ -57,29 +59,13 @@ function love.load()
 	for i = 0, WorldSize.width do
 		for j = 0, WorldSize.height do
 			for k = 0, WorldSize.depth do
-				table.insert(Cells, Cell(j, i, k))
+				table.insert(Cells, Cell(i, j, k))
 			end
 		end
 	end
 
 	Block:init()
 	Blocks = {}
-
-	local p = Pathfinder:find(0, 0, 5, 5)
-	love.graphics.setColor(0.5, 1, 0.5, 0.5)
-	local x = p[1].x*Scale + Scale/2
-	local y = p[1].y*Scale + Scale/2
-	Log:debug(#p .. " " .. x .. " " .. y)
-	love.graphics.circle("line", x, y, Scale/2)
-
-	for i = 2, #p do
-		local x1 = p[i-1].x*Scale + Scale/2
-		local y1 = p[i-1].y*Scale + Scale/2
-		local x2 = p[i].x*Scale + Scale/2
-		local y2 = p[i].y*Scale + Scale/2
-		love.graphics.line(x1, y1, x2, y2)
-		love.graphics.print(p[i].c, p[i].x*Scale, p[i].y*Scale)
-	end
 
 	Minimap:update()
 
@@ -104,15 +90,15 @@ function love.load()
 	end
 
 	Seeds = {}
-	-- for i = 0, WorldSize.width do
-	-- 	for j = 0, WorldSize.height do
-	-- 		for k = 0, WorldSize.depth do
-	-- 			if love.math.random() > 0.95 then
-	-- 				table.insert(Seeds, Seed(j, i, k))
-	-- 			end
-	-- 		end
-	-- 	end
-	-- end
+	for i = 0, WorldSize.width do
+		for j = 0, WorldSize.height do
+			for k = 0, WorldSize.depth do
+				if love.math.random() > 0.95 then
+					table.insert(Seeds, Seed(i, j, k))
+				end
+			end
+		end
+	end
 
 	-- build Entities
 	Entities = {}
@@ -131,9 +117,15 @@ function love.load()
 
 	local brain = Brain(base, head)
 	table.insert(Entities, brain)
+
+	Pathfinder = Pathfinder()
+	Pathfinder:init()
 end
 
 function love.update(dt)
+	Cursor:update(dt)
+	Log:update(dt)
+
 	if Pause.active then
 		return
 	end
@@ -153,9 +145,6 @@ function love.update(dt)
 	for _, v in ipairs(Entities) do
 		v:update(dt)
 	end
-
-	Cursor:update(dt)
-	Log:update(dt)
 end
 
 function love.keypressed(key, scancode, isrepeat)

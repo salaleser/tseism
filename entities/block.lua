@@ -9,6 +9,12 @@ function Block:new(x, y, z, kind)
 	self.z = z
 
 	self.kind = kind
+	self.cost = math.huge -- impassable
+	if self.kind == 7 -- floor
+	or self.kind == 8 -- door
+	or self.kind == 9 then -- door
+		self.cost = 1 -- passable
+	end
 end
 
 function Block:update(dt)

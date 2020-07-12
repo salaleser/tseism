@@ -62,11 +62,8 @@ function Menu:draw()
 			local target = ""
 			table.insert(lines, {"  Tasks: ", v.color})
 			for i, task in ipairs(v.tasks) do
-				if task.x ~= nil
-				and task.y ~= nil then
-					target = task.x .. "," .. task.y
-				elseif task.target ~= nil then
-					target = task.target.x .. "," .. task.target.y
+				if task.target ~= nil then
+					target = task.target.x .. "•" .. task.target.y .. "•" .. task.target.z
 				end
 				table.insert(lines, {"    " .. i .. ". " .. v.task.contractorType .. "." .. v.task.kind .. "(" .. target .. ")", v.color})
 			end

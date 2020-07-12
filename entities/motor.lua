@@ -47,7 +47,7 @@ function Motor:update(dt)
 
 	local err = self:processTask()
 	if err then
-		Scale("ERROR: " .. self.type .. " (" .. self.x .. "•" .. self.y .. "•" .. self.z .. ", " .. self.id .. "): " .. err)
+		Log:error(err)
 	end
 end
 
@@ -72,20 +72,6 @@ function Motor:draw()
 	and Cursor.selectedZ == self.z then
 		Menu:append(self)
 	end
-
-	self:drawTarget()
-end
-
-function Motor:drawTarget()
-	if self.task == nil
-	or self.task.x == nil
-	or self.task.y == nil then
-		return
-	end
-
-	love.graphics.setColor(1, 0.5, 0.5, 0.5)
-	love.graphics.setLineWidth(1)
-	love.graphics.circle("line", self.task.x*Scale + Scale/2, self.task.y*Scale + Scale/2, 0.45*Scale)
 end
 
 function Motor:takeTask()
@@ -120,8 +106,9 @@ function Motor:processTask()
 			return
 		end
 
-		self.base.x = task.x
-		self.base.y = task.y
+		self.base.x = task.target.x
+		self.base.y = task.target.y
+		-- self.base.z = task.target.z
 
 		self.fatigue = self.fatigue + cost
 	else
