@@ -5,7 +5,6 @@ function love.load()
 	require "engine/log"
 	require "engine/queue"
 	require "engine/task"
-	require "engine/position"
 	require "entities/base"
 	require "entities/block"
 	require "entities/brain"
@@ -45,6 +44,7 @@ function love.load()
 	Level = WorldSize.depth/2
 
 	Cursor = Cursor()
+	Task = Task()
 	Log = Log()
 	Console = Console()
 	Overlay = Overlay()
@@ -89,34 +89,49 @@ function love.load()
 		end
 	end
 
-	Seeds = {}
-	for i = 0, WorldSize.width do
-		for j = 0, WorldSize.height do
-			for k = 0, WorldSize.depth do
-				if love.math.random() > 0.95 then
-					table.insert(Seeds, Seed(i, j, k))
-				end
+	local junk2X = 2
+	local junk2Y = 14
+	for i, row in ipairs(Junk2) do
+		for j, kind in ipairs(row) do
+			if kind ~= 0 then
+				table.insert(Blocks, Block(j + junk2X, i + junk2Y, 4, kind))
 			end
 		end
 	end
 
+	Seeds = {}
+	for i = 0, WorldSize.width do
+		for j = 0, WorldSize.height do
+			for k = 0, WorldSize.depth do
+				if love.math.random() > 0.9 then
+					if Pathfinder:cost(nil, {i, j, k}) == 1 then
+						table.insert(Seeds, Seed(i, j, k))
+					end
+				end
+			end
+		end
+	end
+	Log:debug(#Seeds)
+
 	-- build Entities
 	Entities = {}
 
-	local base = Base(4, 4, 4)
-	table.insert(Entities, base)
+	for i = 0, 40 do
+		local base = Base(love.math.random(0, WorldSize.width), love.math.random(0, WorldSize.height), 4)
+		table.insert(Entities, base)
 
-	local motor = Motor(base)
-	table.insert(Entities, motor)
+		local motor = Motor(base)
+		table.insert(Entities, motor)
 
-	local head = Head(base)
-	table.insert(Entities, head)
+		local head = Head(base)
+		table.insert(Entities, head)
 
-	local manipulator = Manipulator(base)
-	table.insert(Entities, manipulator)
+		local manipulator = Manipulator(base)
+		table.insert(Entities, manipulator)
 
-	local brain = Brain(base, head)
-	table.insert(Entities, brain)
+		local brain = Brain(base)
+		table.insert(Entities, brain)
+	end
 
 	Pathfinder = Pathfinder()
 	Pathfinder:init()

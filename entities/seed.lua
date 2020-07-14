@@ -16,14 +16,14 @@ function Seed:new(x, y, z)
 end
 
 function Seed:update(dt)
-	if self.health <= 0 then
-		self:say("I'm dead!")
-		self:destroy()
-	end
-
 	if self.health ~= self.lastHealth then
 		self:say("Health changed for " .. (self.health - self.lastHealth))
 		self.lastHealth = self.health
+	end
+
+	if self.health <= 0 then
+		self:say("I'm dead!")
+		self:remove(Seeds)
 	end
 end
 
@@ -46,10 +46,10 @@ function Seed:say(message)
 	-- love.graphics.rectangle("line", (self.x + 1)*Scale, (self.y)*Scale, 64, 16)
 end
 
-function Seed:destroy()
-	for i, v in ipairs(Seeds) do
-		if self.id == v.id then
-			table.remove(Seeds, i)
+function Seed:remove(list)
+	for i, v in ipairs(list) do
+		if v.id == self.id then
+			table.remove(list, i)
 			return
 		end
 	end

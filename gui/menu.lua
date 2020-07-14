@@ -49,24 +49,15 @@ function Menu:draw()
 		if v.hunger ~= nil then
 			table.insert(lines, {"  Hunger: " .. v.hunger, v.color})
 		end
-		if v.force ~= nil then
-			table.insert(lines, {"  Force: " .. v.force, v.color})
-		end
 		if v.speed ~= nil then
 			table.insert(lines, {"  Speed: " .. v.speed, v.color})
 		end
-		if v.fatigueTask ~= nil then
-			table.insert(lines, {"  FatigueTask: " .. v.fatigueTask, v.color})
-		end
 		if v.tasks ~= nil then
-			local target = ""
-			table.insert(lines, {"  Tasks: ", v.color})
+			local tasksText = "  Tasks: "
 			for i, task in ipairs(v.tasks) do
-				if task.target ~= nil then
-					target = task.target.x .. "•" .. task.target.y .. "•" .. task.target.z
-				end
-				table.insert(lines, {"    " .. i .. ". " .. v.task.contractorType .. "." .. v.task.kind .. "(" .. target .. ")", v.color})
+				tasksText = tasksText .. i .. "=" .. task .. "; "
 			end
+			table.insert(lines, {tasksText, v.color})
 		end
 	end
 

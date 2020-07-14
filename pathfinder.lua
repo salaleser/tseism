@@ -5,8 +5,15 @@ function Pathfinder:new()
 	self.visible = false
 	self.defaultValue = -1
 
+	self.z = nil
+
 	-- remove table element by its value
 	local tr = function(t, v)
+		if t == nil then
+			Log:error("t is nil")
+			return
+		end
+
 		for i = 1, #t do
 			if t[i] == v then
 				table.remove(t, i)
@@ -43,6 +50,13 @@ function Pathfinder:new()
 		local remove = function(k)
 			local v = set[k]
 			local prioritySet = r_set[v]
+
+			-- TODO why it's nil
+			if prioritySet == nil then
+				Log:error("prioritySet is nil")
+				prioritySet = {}
+			end
+
 			tr(prioritySet, k)
 			if #prioritySet < 1 then
 				tr(keys, v)
@@ -75,6 +89,10 @@ function Pathfinder:new()
 		-- is this queue empty?
 		t.empty = function()
 			return #keys < 1
+		end
+
+		t.len = function()
+			return #keys
 		end
 
 		setmetatable(t, {
@@ -166,6 +184,7 @@ end
 
 -- The reciepe from the book "Lua Game Development Cookbook"
 function Pathfinder:find(start, goal)
+	self.z = start[3]
 
 	-- This recipe will use the tuple data structure to deine the point
 	-- position. However, the Lua language doesn't offer a real tuple data
@@ -228,6 +247,16 @@ function Pathfinder:find(start, goal)
 		return totalPath
 	end
 
+	local function reconstructPath2(cameFrom, goal)
+		local totalPath = {cameFrom[goal]}
+		local current = cameFrom[goal]
+		while current do
+			table.insert(totalPath, current)
+			current = cameFrom[current]
+		end
+		return totalPath
+	end
+
 	-- The pathinding algorithm uses simple heuristic functions to estimate
 	-- which path is the best to take. You can use the Manhattan distance
 	-- function to obtain the path cost estimation. The good thing is that
@@ -245,8 +274,15 @@ function Pathfinder:find(start, goal)
 	frontier[start] = 0
 	storeCells(start, goal)
 
+	local c = 0 -- TODO
 	while not frontier.empty() do
 		local current = assert((frontier.min())[1])
+
+		if c > 100 then -- TODO
+			return reconstructPath2(cameFrom, goal)
+		end
+		c = c + 1 -- TODO
+
 		-- are we at goal?
 		if current == goal then
 			return reconstructPath(cameFrom, goal)
@@ -274,8 +310,9 @@ function Pathfinder:cost(p0, p1)
 	local y = p1[2]
 	local z = p1[3]
 	if z == nil then
-		z = Level
+		z = self.z -- TODO
 	end
+
 	for _, v in pairs(Blocks) do
 		if v.x == x
 		and v.y == y

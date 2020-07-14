@@ -8,13 +8,11 @@ function Manipulator:new(base)
 	self.color = Color.cyan
 
 	self.base = base
-
 	self.x = base.x
 	self.y = base.y
 	self.z = base.z
 
-	self.health = 100
-	self.fatigue = 0
+	table.insert(base.parts, self)
 end
 
 function Manipulator:update(dt)
